@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -83,20 +84,20 @@ private void configureBindings() { //default
     //BUTTON BOX CONTROLS
 
     //turret Controls
-      new JoystickButton(buttonBox, 5).onTrue(new InstantCommand(turretSub::setpointRight, turretSub));
-      new JoystickButton(buttonBox, 7).onTrue(new InstantCommand(turretSub::setpointCenter, turretSub));
-      new JoystickButton(buttonBox, 9).onTrue(new InstantCommand(turretSub::setpointLeft, turretSub));
+      new JoystickButton(buttonBox, 5).onTrue(new RunCommand(turretSub::setpointRight, turretSub));
+      new JoystickButton(buttonBox, 7).onTrue(new RunCommand(turretSub::setpointCenter, turretSub));
+      new JoystickButton(buttonBox, 9).onTrue(new RunCommand(turretSub::setpointLeft, turretSub));
 
     //Shooter controls
-      new JoystickButton(buttonBox, 3).onTrue(new InstantCommand(shootersub::FlywheelSetRPM, shootersub));
-      new JoystickButton(buttonBox, 4).onTrue(new InstantCommand(shootersub::ShooterUnjam, shootersub));
+      new JoystickButton(buttonBox, 3).onTrue(new RunCommand(shootersub::FlywheelSetRPM, shootersub));
+      new JoystickButton(buttonBox, 4).onTrue(new RunCommand(shootersub::ShooterUnjam, shootersub));
 
     //Climber Controls
       new JoystickButton(buttonBox, 1).onTrue(new InstantCommand(climberSub::ClimberMotorUp, climberSub));
             new JoystickButton(buttonBox, 1).onFalse(new InstantCommand(climberSub::ClimberMotorStop, climberSub));
       new JoystickButton(buttonBox, 2).onTrue(new InstantCommand(climberSub::ClimberMotorDown, climberSub));
             new JoystickButton(buttonBox, 2).onFalse(new InstantCommand(climberSub::ClimberMotorStop, climberSub));
-                
+      
   }
 
 

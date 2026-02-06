@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimberSub extends SubsystemBase {
   /** Creates a new Climber. */
-    private final SparkMax ClimberMotor = new SparkMax(18, MotorType.kBrushless);
+    private final SparkMax ClimberMotor = new SparkMax(27, MotorType.kBrushless);
      RelativeEncoder ClimberEncoder = ClimberMotor.getEncoder();
     double maxClimb = 200;
     double minClimb = -200;

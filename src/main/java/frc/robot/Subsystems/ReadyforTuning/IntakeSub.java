@@ -16,9 +16,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class IntakeSub extends SubsystemBase {
   /** Creates a new IntakeSub. */
 
-  private final SparkMax IntakeWheelMotor = new SparkMax(18, MotorType.kBrushless);
-  private final SparkMax AgitatorMotor = new SparkMax(18, MotorType.kBrushless);
-  private final SparkMax IntakeArmMotor = new SparkMax(18, MotorType.kBrushless);
+  private final SparkMax IntakeWheelMotor = new SparkMax(23, MotorType.kBrushless);
+  private final SparkMax AgitatorMotor = new SparkMax(22, MotorType.kBrushless);
+  private final SparkMax IntakeArmMotor = new SparkMax(21, MotorType.kBrushless);
   RelativeEncoder IntakeArmEncoder = IntakeArmMotor.getEncoder();
   PIDController ArmPID = new PIDController(0.001, 0, 0);
 

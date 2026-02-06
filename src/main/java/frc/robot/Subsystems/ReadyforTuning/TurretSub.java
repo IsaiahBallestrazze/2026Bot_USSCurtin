@@ -9,53 +9,108 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 
 public class TurretSub extends SubsystemBase {
   /** Creates a new TurretSub. */
 
-  //3 setpoints on buttonbox for turret to got to
-  //assume 0 is robot turned all the way to the right ->
-  // button 1 sends it to 45 degrees
-  // button 2 sends it to 90 degrees
-  // button 3 sends it to 135 degrees <-
-  //auto adjust from limelight gives around +- 27 degrees of adjustment
-  // turret auto adjsuts from setpoints based on limelight data to stay on target
+//Turret is always on (toggle?) and pointing to our target position. 
+//if it cant reach the target position it will go to the closest side 180 or 0 no matter the gyro rotation
+//Turret 0 degrees is facing right side of robot, 90 is forward, 180 is left side of robot
 
-  //holding button calls setpoint and auto adjust script
+private double targetX = 0; //X position of target ABSOLUTE except for red/blue side
+private double targetY = 0; //Y position of target ABSOLUTE
 
-  //to know the position of the turret we must get the relative encoder position and convert it to an angle.
+private double robotX = 0; //X position of robot
+private double robotY = 0; //Y position of robot
 
-      private final SparkMax turretMotor = new SparkMax(10, MotorType.kBrushless); // CAN ID
+
+NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assuming this is right
+
+
+
+      private final SparkMax turretMotor = new SparkMax(24, MotorType.kBrushless); // CAN ID
         final RelativeEncoder turretEncoder = turretMotor.getEncoder();
 
        PIDController TurretPID = new PIDController(0.001, 0, 0);
 
-  public TurretSub() {
-
-  }
+  public TurretSub() {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Turret stuff below
 
+public double CalculateRotationSpeed(double targetAngle, double turretCurrentAngle, PIDController pidController, double gyroAngle){
+  double difference = (turretCurrentAngle - targetAngle) - gyroAngle;
+  double setPoint;
+
+  boolean method1 = ((difference <= 180) && (difference >= -180)) ? true: false;
+  boolean method2 = (turretCurrentAngle >= 0) ? true: false;
+  boolean method3 = (turretCurrentAngle < 0) ? true: false;
+
+  if(method1){ // determines which equation to use to find shortest route go to https://www.desmos.com/calculator/tqoycuy5sz for a graph
+    setPoint = -difference;
+  } else if(method2){
+    setPoint = -(difference-360);
+  } else if(method3){
+    setPoint = -(difference+360);
+  } else{
+    setPoint = 0;
+  }
+
+  double turretSpeed = pidController.calculate(0,setPoint);
+  if(turretSpeed > 1) turretSpeed = 1;
+  if(turretSpeed < -1) turretSpeed = -1;
+
+    SmartDashboard.putNumber("GyroAngle", turretSpeed);
+    SmartDashboard.putNumber("turretCurrentAngle", turretCurrentAngle);
+    SmartDashboard.putNumber("Target Angle", targetAngle);
+    SmartDashboard.putNumber("Turret Speed", turretSpeed);
+    SmartDashboard.putNumber("Setpoint", setPoint);
+
+  return turretSpeed; //gives speed and direction
+}
+
+public double CalculateTargetAngle(double botX, double botY, double targetX, double targetY){ //finds the angle between the robot and the target point
+  Double targetAngle = Math.atan2((targetY - botY),(targetX - botX)); // Use atan2 to handle all quadrants properly
+  //point slope form to find line
+  System.out.println("Target Angle (radians): " + targetAngle);
+  return targetAngle;
+}
+
+public PIDController getTurretPID(){
+  return TurretPID;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   public void setTurretspeed(double speed) {
     // Convert degrees to motor rotations (assuming 1 rotation = 360 degrees)
   turretMotor.set(speed);  
-}
-
-public void setpointRight(){
-  //ADD SAFETY FEATURES TO TURRETSETPOINTS: PHYSICAL AND SOFTWARE LIMITS
-  Double turretSpeed = TurretPID.calculate(getTurretAngle(), 45 + getTx()); //right position assuming 0 is right side
-    turretMotor.set(turretSpeed);  
-}
-public void setpointLeft(){
-  Double turretSpeed = TurretPID.calculate(getTurretAngle(), 135 + getTx()); //left position assuming 0 is right side
-    turretMotor.set(turretSpeed);  
-}
-public void setpointCenter(){
-  Double turretSpeed = TurretPID.calculate(getTurretAngle(), 90 + getTx()); //center position assuming 0 is right side
-    turretMotor.set(turretSpeed);  
 }
 
 public double getTurretAngle(){ //assumes 0 is on right side
@@ -63,6 +118,108 @@ public double getTurretAngle(){ //assumes 0 is on right side
   //MUST CONVERT POSITION TO ANGLE
   return turretAngle;
 }
+
+public void setTurretAngle(double angle){ //assumes 0 is on right side
+  if(angle < 0) angle = 0;
+  if(angle > 180) angle = 180; //limits degree of movement
+
+  double currentAngle = getTurretAngle();
+  double turretSpeed = TurretPID.calculate(currentAngle, angle);
+  setTurretspeed(turretSpeed);
+}
+
+
+public double getFieldPositionX() {
+  NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable("Field");
+
+  double[] pose = table.getEntry("OdometryPose").getDoubleArray(new double[3]);
+  System.out.println("X Position: " + pose[0]);
+  return pose[0];
+}
+
+public double getFieldPositionY() {
+  NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable("Field");
+
+  double[] pose = table.getEntry("OdometryPose").getDoubleArray(new double[3]);
+  return pose[1];
+}
+
+public double getFieldPositionRotation() {
+  NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable("Field");
+
+  double[] pose = table.getEntry("OdometryPose").getDoubleArray(new double[3]);
+  return pose[2];
+}
+
+public double SetFieldPosition(double x, double y, double rotation) { //gets replaced
+  double[] pose = {x, y, rotation};
+
+NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable("Field");
+
+
+
+  table.getEntry("OdometryPose").setDoubleArray(pose);
+  System.out.println("Field Position Set to X: " + x + " Y: " + y + " Rotation: " + rotation);
+  return pose[2];
+}
+
+// public void printFieldPosition(){ //use specific array integer assignment XY ROTATION
+// NetworkTable table =
+//     NetworkTableInstance.getDefault()
+//         .getTable("SmartDashboard")
+//         .getSubTable("Field");
+
+
+//         var entry = table.getEntry("OdometryPose");
+
+// if (entry.exists()) {
+//   System.out.println("Entry exists!");
+//   double[] pose = entry.getDoubleArray(new double[3]);
+//   System.out.println("X Position: " + pose[0]);
+//   System.out.println("Y Position: " + pose[1]);
+//   System.out.println("Rotation: " + pose[2]);
+// } else {
+//   System.out.println("Entry does not exist.");
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //TURRET STUFF ABOVE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -258,6 +258,10 @@ public void setupPathPlanner()
     return getPose().getRotation();
   }
 
+      public double getAngles()
+  {
+    return getPose().getRotation().getDegrees();
+  }
 
 
 /////////////////////////////////////////////////////////////////////

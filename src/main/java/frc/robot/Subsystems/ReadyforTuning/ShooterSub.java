@@ -17,9 +17,9 @@ public class ShooterSub extends SubsystemBase {
   /** Creates a new Shooter. */
 
 
-  private final SparkMax feederWheel1 = new SparkMax(18, MotorType.kBrushless);
-  private final SparkMax feederWheel2 = new SparkMax(18, MotorType.kBrushless);
-  private final SparkMax flywheel = new SparkMax(18, MotorType.kBrushless);
+  private final SparkMax feederWheel1 = new SparkMax(20, MotorType.kBrushless);
+  private final SparkMax feederWheel2 = new SparkMax(19, MotorType.kBrushless);
+  private final SparkMax flywheel = new SparkMax(36, MotorType.kBrushless);
   RelativeEncoder flywheelEncoder = flywheel.getEncoder();
   PIDController FlywheelPID = new PIDController(0.001, 0, 0);
 

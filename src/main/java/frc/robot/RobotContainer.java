@@ -36,10 +36,16 @@ private final ShooterSub shootersub = new ShooterSub();
 private final SwerveSub drivebase = new SwerveSub();
 private final TurretSub turretSub = new TurretSub();
 
-  private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController driverController = new CommandXboxController(1);
     private final GenericHID buttonBox = new GenericHID(0);
 
   private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
+
+//TARGET POSITION ON FIELD
+private double bluealliancetargetX = 6.23; //X position of target
+private double bluealliancetargetY = 4.02; //Y position of target
+
+
 
 
   public RobotContainer() {
@@ -84,9 +90,9 @@ private void configureBindings() { //default
     //BUTTON BOX CONTROLS
 
     //turret Controls
-      new JoystickButton(buttonBox, 5).onTrue(new RunCommand(turretSub::setpointRight, turretSub));
-      new JoystickButton(buttonBox, 7).onTrue(new RunCommand(turretSub::setpointCenter, turretSub));
-      new JoystickButton(buttonBox, 9).onTrue(new RunCommand(turretSub::setpointLeft, turretSub));
+      // new JoystickButton(buttonBox, 5).onTrue(new RunCommand(turretSub::setpointRight, turretSub));
+      // new JoystickButton(buttonBox, 7).onTrue(new RunCommand(turretSub::setpointCenter, turretSub));
+      // new JoystickButton(buttonBox, 9).onTrue(new RunCommand(turretSub::setpointLeft, turretSub));
 
     //Shooter controls
       new JoystickButton(buttonBox, 3).onTrue(new RunCommand(shootersub::FlywheelSetRPM, shootersub));
@@ -98,6 +104,25 @@ private void configureBindings() { //default
       new JoystickButton(buttonBox, 2).onTrue(new InstantCommand(climberSub::ClimberMotorDown, climberSub));
             new JoystickButton(buttonBox, 2).onFalse(new InstantCommand(climberSub::ClimberMotorStop, climberSub));
       
+      new JoystickButton(buttonBox, 10).onTrue(new RunCommand(() -> turretSub.SetFieldPosition(0, 0, 0), turretSub));
+      new JoystickButton(buttonBox, 9).onTrue(new RunCommand(() -> turretSub.getFieldPositionX(), turretSub));
+
+
+      //fear this single line of code
+      new JoystickButton(buttonBox, 8).onChange(new RunCommand(() -> turretSub.setTurretspeed(
+        turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
+                                                                        turretSub.getFieldPositionX(), 
+                                                                        turretSub.getFieldPositionY(), 
+                                                                        bluealliancetargetX, 
+                                                                        bluealliancetargetY),
+        turretSub.getTurretAngle(), 
+        turretSub.getTurretPID(), 
+        drivebase.getAngles()))));
+
+
+
+
+
   }
 
 

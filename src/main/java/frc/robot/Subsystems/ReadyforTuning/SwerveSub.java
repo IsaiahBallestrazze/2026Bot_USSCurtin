@@ -30,6 +30,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import swervelib.parser.SwerveParser;
+import swervelib.telemetry.SwerveDriveTelemetry;
+import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -54,6 +56,8 @@ private SwerveDrive swerveDrive;
 
 
   public SwerveSub() {
+
+        //SwerveDriveTelemetry.verbosity = TelemetryVerbosity.MACHINE;
 
     try
     {

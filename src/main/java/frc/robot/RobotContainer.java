@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Commands.Turret;
 import frc.robot.Subsystems.ReadyforTuning.ClimberSub;
 import frc.robot.Subsystems.ReadyforTuning.IntakeSub;
 import frc.robot.Subsystems.ReadyforTuning.ShooterSub;
@@ -35,6 +36,7 @@ private final IntakeSub intakeSub = new IntakeSub();
 private final ShooterSub shootersub = new ShooterSub();
 private final SwerveSub drivebase = new SwerveSub();
 private final TurretSub turretSub = new TurretSub();
+//Turret trackTarget = new Turret(turretSub, 0);
 
   private final CommandXboxController driverController = new CommandXboxController(1);
     private final GenericHID buttonBox = new GenericHID(0);
@@ -90,26 +92,39 @@ private void configureBindings() { //default
     //BUTTON BOX CONTROLS
 
     //turret Controls
-      // new JoystickButton(buttonBox, 5).onTrue(new RunCommand(turretSub::setpointRight, turretSub));
-      // new JoystickButton(buttonBox, 7).onTrue(new RunCommand(turretSub::setpointCenter, turretSub));
-      // new JoystickButton(buttonBox, 9).onTrue(new RunCommand(turretSub::setpointLeft, turretSub));
+
 
     //Shooter controls
-      new JoystickButton(buttonBox, 3).onTrue(new RunCommand(shootersub::FlywheelSetRPM, shootersub));
-      new JoystickButton(buttonBox, 4).onTrue(new RunCommand(shootersub::ShooterUnjam, shootersub));
+      // new JoystickButton(buttonBox, 3).onTrue(new RunCommand(shootersub::FlywheelSetRPM, shootersub));
+      // new JoystickButton(buttonBox, 4).onTrue(new RunCommand(shootersub::ShooterUnjam, shootersub));
 
     //Climber Controls
-      new JoystickButton(buttonBox, 1).onTrue(new InstantCommand(climberSub::ClimberMotorUp, climberSub));
-            new JoystickButton(buttonBox, 1).onFalse(new InstantCommand(climberSub::ClimberMotorStop, climberSub));
-      new JoystickButton(buttonBox, 2).onTrue(new InstantCommand(climberSub::ClimberMotorDown, climberSub));
-            new JoystickButton(buttonBox, 2).onFalse(new InstantCommand(climberSub::ClimberMotorStop, climberSub));
+      // new JoystickButton(buttonBox, 1).onTrue(new InstantCommand(climberSub::ClimberMotorUp, climberSub));
+      //       new JoystickButton(buttonBox, 1).onFalse(new InstantCommand(climberSub::ClimberMotorStop, climberSub));
+      // new JoystickButton(buttonBox, 2).onTrue(new InstantCommand(climberSub::ClimberMotorDown, climberSub));
+      //       new JoystickButton(buttonBox, 2).onFalse(new InstantCommand(climberSub::ClimberMotorStop, climberSub));
       
+        new JoystickButton(buttonBox, 1).onTrue(new RunCommand(() -> turretSub.setTurretspeed(.5), turretSub));
+        new JoystickButton(buttonBox, 1).onFalse(new RunCommand(() -> turretSub.setTurretspeed(0), turretSub));
+
+        //         new JoystickButton(buttonBox, 2).onTrue(new RunCommand(() -> turretSub.setTurretspeed(1), turretSub));
+        // new JoystickButton(buttonBox, 2).onFalse(new RunCommand(() -> turretSub.setTurretspeed(0), turretSub));
+
+      new JoystickButton(buttonBox, 3).onTrue(new RunCommand(() -> turretSub.setTurretAngle((Math.toRadians(45)))));
+      new JoystickButton(buttonBox, 4).onTrue(new RunCommand(() -> turretSub.setTurretAngle(Math.toRadians(135))));
+
+
       new JoystickButton(buttonBox, 10).onTrue(new RunCommand(() -> turretSub.SetFieldPosition(0, 0, 0), turretSub));
       new JoystickButton(buttonBox, 9).onTrue(new RunCommand(() -> turretSub.getFieldPositionX(), turretSub));
 
+      new JoystickButton(buttonBox, 5).toggleOnTrue(new RunCommand(() -> turretSub.getTurretPosition(), turretSub));
+      new JoystickButton(buttonBox, 6).onTrue(new RunCommand(() -> turretSub.resetTurretEncoder(), turretSub));
+
+
+
 
       //fear this single line of code
-      new JoystickButton(buttonBox, 8).onChange(new RunCommand(() -> turretSub.setTurretspeed(
+      new JoystickButton(buttonBox, 8).toggleOnTrue(new RunCommand(() -> turretSub.setTurretspeed(
         turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
                                                                         turretSub.getFieldPositionX(), 
                                                                         turretSub.getFieldPositionY(), 
@@ -117,7 +132,7 @@ private void configureBindings() { //default
                                                                         bluealliancetargetY),
         turretSub.getTurretAngle(), 
         turretSub.getTurretPID(), 
-        drivebase.getAngles()))));
+        Math.toRadians(drivebase.getAngles()))))); //converts the gyro to radians for math
 
 
 

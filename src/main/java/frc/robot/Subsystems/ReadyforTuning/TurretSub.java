@@ -34,10 +34,10 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
 
 
 
-      private final SparkMax turretMotor = new SparkMax(24, MotorType.kBrushless); // CAN ID
+      private final SparkMax turretMotor = new SparkMax(3, MotorType.kBrushless); // CAN ID
         final RelativeEncoder turretEncoder = turretMotor.getEncoder();
 
-       PIDController TurretPID = new PIDController(0.001, 0, 0);
+       PIDController TurretPID = new PIDController(0.3, 0, 0);
 
   public TurretSub() {}
 
@@ -66,11 +66,14 @@ public double CalculateRotationSpeed(double targetAngle, double turretCurrentAng
   if(turretSpeed > 1) turretSpeed = 1;
   if(turretSpeed < -1) turretSpeed = -1;
 
-    SmartDashboard.putNumber("GyroAngle", turretSpeed);
-    SmartDashboard.putNumber("turretCurrentAngle", turretCurrentAngle);
-    SmartDashboard.putNumber("Target Angle", targetAngle);
+    SmartDashboard.putNumber("GyroAngle", Math.toDegrees(gyroAngle));
+    SmartDashboard.putNumber("Turret Current Angle", Math.toDegrees(turretCurrentAngle));
+    SmartDashboard.putNumber("Target Angle Setpoint", Math.toDegrees(targetAngle));
     SmartDashboard.putNumber("Turret Speed", turretSpeed);
     SmartDashboard.putNumber("Setpoint", setPoint);
+
+    SmartDashboard.putNumber("BotX", getFieldPositionX());
+    SmartDashboard.putNumber("BotY", getFieldPositionY());
 
   return turretSpeed; //gives speed and direction
 }
@@ -82,46 +85,39 @@ public double CalculateTargetAngle(double botX, double botY, double targetX, dou
   return targetAngle;
 }
 
-public PIDController getTurretPID(){
-  return TurretPID;
+
+
+
+
+public void resetTurretEncoder(){
+  turretEncoder.setPosition(0);
+  
 }
 
+public double getTurretPosition(){
+  SmartDashboard.putNumber("Turret Encoder Here", Math.toRadians(turretEncoder.getPosition() / 19.5));
+  return turretEncoder.getPosition();
+}
 
+public double getTurretRPM(){
+  SmartDashboard.putNumber("Turret RPM", turretMotor.getEncoder().getVelocity());
+  return turretMotor.getEncoder().getVelocity();
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+public double getTurretAngle(){ //assumes 0 is on right side
+  double turretAngle = Math.toRadians(turretEncoder.getPosition() / 19.5); //gives 0 to pi
+  //MUST CONVERT POSITION TO ANGLE
+  return turretAngle;
+}
 
   public void setTurretspeed(double speed) {
     // Convert degrees to motor rotations (assuming 1 rotation = 360 degrees)
   turretMotor.set(speed);  
 }
 
-public double getTurretAngle(){ //assumes 0 is on right side
-  double turretAngle = turretEncoder.getPosition(); // in rotations
-  //MUST CONVERT POSITION TO ANGLE
-  return turretAngle;
-}
-
-public void setTurretAngle(double angle){ //assumes 0 is on right side
+public void setTurretAngle(double angle){ //assumes 0 is on right side //////////////////////////////////////////WAH WHY IN DEGREE LINMITS????
   if(angle < 0) angle = 0;
-  if(angle > 180) angle = 180; //limits degree of movement
+  if(angle > Math.PI) angle = Math.PI; //limits degree of movement
 
   double currentAngle = getTurretAngle();
   double turretSpeed = TurretPID.calculate(currentAngle, angle);
@@ -129,10 +125,12 @@ public void setTurretAngle(double angle){ //assumes 0 is on right side
 }
 
 
+
+
 public double getFieldPositionX() {
   NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable("Field");
 
-  double[] pose = table.getEntry("OdometryPose").getDoubleArray(new double[3]);
+  double[] pose = table.getEntry("Robot").getDoubleArray(new double[3]);
   System.out.println("X Position: " + pose[0]);
   return pose[0];
 }
@@ -140,14 +138,14 @@ public double getFieldPositionX() {
 public double getFieldPositionY() {
   NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable("Field");
 
-  double[] pose = table.getEntry("OdometryPose").getDoubleArray(new double[3]);
+  double[] pose = table.getEntry("Robot").getDoubleArray(new double[3]);
   return pose[1];
 }
 
 public double getFieldPositionRotation() {
   NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable("Field");
 
-  double[] pose = table.getEntry("OdometryPose").getDoubleArray(new double[3]);
+  double[] pose = table.getEntry("Robot").getDoubleArray(new double[3]);
   return pose[2];
 }
 
@@ -158,29 +156,11 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard"
 
 
 
-  table.getEntry("OdometryPose").setDoubleArray(pose);
+  table.getEntry("Robot").setDoubleArray(pose);
   System.out.println("Field Position Set to X: " + x + " Y: " + y + " Rotation: " + rotation);
   return pose[2];
 }
 
-// public void printFieldPosition(){ //use specific array integer assignment XY ROTATION
-// NetworkTable table =
-//     NetworkTableInstance.getDefault()
-//         .getTable("SmartDashboard")
-//         .getSubTable("Field");
-
-
-//         var entry = table.getEntry("OdometryPose");
-
-// if (entry.exists()) {
-//   System.out.println("Entry exists!");
-//   double[] pose = entry.getDoubleArray(new double[3]);
-//   System.out.println("X Position: " + pose[0]);
-//   System.out.println("Y Position: " + pose[1]);
-//   System.out.println("Rotation: " + pose[2]);
-// } else {
-//   System.out.println("Entry does not exist.");
-// }
 
 
 
@@ -218,7 +198,9 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard"
 
 
 
-
+public PIDController getTurretPID(){
+  return TurretPID;
+}
 
 
 //TURRET STUFF ABOVE

@@ -114,8 +114,10 @@ private void configureBindings() { //default
       new JoystickButton(buttonBox, 4).onTrue(new RunCommand(() -> turretSub.setTurretAngle(Math.toRadians(135))));
 
 
-      new JoystickButton(buttonBox, 10).onTrue(new RunCommand(() -> turretSub.SetFieldPosition(0, 0, 0), turretSub));
-      new JoystickButton(buttonBox, 9).onTrue(new RunCommand(() -> turretSub.getFieldPositionX(), turretSub));
+      //new JoystickButton(buttonBox, 10).onTrue(new RunCommand(() -> turretSub.SetFieldPosition(0, 0, 0), turretSub));
+         new JoystickButton(buttonBox, 10).onTrue(new RunCommand(() -> System.out.println(drivebase.getGyroRaw()), turretSub));
+
+      new JoystickButton(buttonBox, 9).onTrue(new RunCommand(() -> turretSub.printoutLimelightData(), turretSub));
 
       new JoystickButton(buttonBox, 5).toggleOnTrue(new RunCommand(() -> turretSub.getTurretPosition(), turretSub));
       new JoystickButton(buttonBox, 6).onTrue(new RunCommand(() -> turretSub.resetTurretEncoder(), turretSub));
@@ -124,7 +126,7 @@ private void configureBindings() { //default
 
 
       //fear this single line of code
-      new JoystickButton(buttonBox, 8).toggleOnTrue(new RunCommand(() -> turretSub.setTurretspeed(
+      new JoystickButton(buttonBox, 8).toggleOnTrue(new RunCommand(() -> turretSub.setTurretspeedWithlimits(
         turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
                                                                         turretSub.getFieldPositionX(), 
                                                                         turretSub.getFieldPositionY(), 
@@ -132,7 +134,7 @@ private void configureBindings() { //default
                                                                         bluealliancetargetY),
         turretSub.getTurretAngle(), 
         turretSub.getTurretPID(), 
-        Math.toRadians(drivebase.getAngles()))))); //converts the gyro to radians for math
+        Math.toRadians(drivebase.getAnglesInverted()))))); //converts the gyro to radians for math
 
 
 

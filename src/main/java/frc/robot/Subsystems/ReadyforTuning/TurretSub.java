@@ -36,31 +36,49 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
 
       private final SparkMax turretMotor = new SparkMax(3, MotorType.kBrushless); // CAN ID
         final RelativeEncoder turretEncoder = turretMotor.getEncoder();
+       PIDController TurretPID = new PIDController(2, 0, 0.15);
 
-       PIDController TurretPID = new PIDController(0.3, 0, 0);
-
-  public TurretSub() {}
+  public TurretSub() {
+          turretMotor.setInverted(true);
+  }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Turret stuff below
 
 public double CalculateRotationSpeed(double targetAngle, double turretCurrentAngle, PIDController pidController, double gyroAngle){
+
+//insert limits for target angle between -90 NAD 90 
+ //if (targetAngle < Math.toRadians(0)) targetAngle = Math.toRadians(0);
+ //if (targetAngle > Math.toRadians(180)) targetAngle = Math.toRadians(180);
+
   double difference = (turretCurrentAngle - targetAngle) - gyroAngle;
   double setPoint;
 
-  boolean method1 = ((difference <= 180) && (difference >= -180)) ? true: false;
+  boolean method1 = ((difference <= Math.toRadians(180)) && (difference >= Math.toRadians(-180))) ? true: false;
   boolean method2 = (turretCurrentAngle >= 0) ? true: false;
   boolean method3 = (turretCurrentAngle < 0) ? true: false;
 
+      SmartDashboard.putBoolean("method1", method1);
+      SmartDashboard.putBoolean("method2", method2);
+      SmartDashboard.putBoolean("method3", method3);
+
+
   if(method1){ // determines which equation to use to find shortest route go to https://www.desmos.com/calculator/tqoycuy5sz for a graph
     setPoint = -difference;
+    SmartDashboard.putNumber("SETPOINT TESTER", setPoint);
   } else if(method2){
-    setPoint = -(difference-360);
+    setPoint = -(difference - Math.toRadians(360));
+    SmartDashboard.putNumber("SETPOINT TESTER", setPoint);
   } else if(method3){
-    setPoint = -(difference+360);
+    setPoint = -(difference + Math.toRadians(360));
+    SmartDashboard.putNumber("SETPOINT TESTER", setPoint);
   } else{
     setPoint = 0;
+    SmartDashboard.putNumber("SETPOINT TESTER", setPoint);
   }
+
+//if (setPoint > Math.toRadians(180)) setPoint = Math.toRadians(180);
+//if (setPoint < Math.toRadians(0)) setPoint = Math.toRadians(0);
 
   double turretSpeed = pidController.calculate(0,setPoint);
   if(turretSpeed > 1) turretSpeed = 1;
@@ -81,7 +99,7 @@ public double CalculateRotationSpeed(double targetAngle, double turretCurrentAng
 public double CalculateTargetAngle(double botX, double botY, double targetX, double targetY){ //finds the angle between the robot and the target point
   Double targetAngle = Math.atan2((targetY - botY),(targetX - botX)); // Use atan2 to handle all quadrants properly
   //point slope form to find line
-  System.out.println("Target Angle (radians): " + targetAngle);
+  //System.out.println("Target Angle (radians): " + targetAngle);
   return targetAngle;
 }
 
@@ -115,13 +133,33 @@ public double getTurretAngle(){ //assumes 0 is on right side
   turretMotor.set(speed);  
 }
 
-public void setTurretAngle(double angle){ //assumes 0 is on right side //////////////////////////////////////////WAH WHY IN DEGREE LINMITS????
-  if(angle < 0) angle = 0;
-  if(angle > Math.PI) angle = Math.PI; //limits degree of movement
+  public void setTurretspeedWithlimits(double speed) {
+
+    if (speed > 0 && getTurretAngle() >= Math.toRadians(90)) {
+      speed = 0; // Stop the motor if trying to move beyond +90 degrees
+      SmartDashboard.putBoolean("Positive safety?", true);
+    } else if (speed < 0 && getTurretAngle() <= Math.toRadians(-90)) {
+      speed = 0; // Stop the motor if trying to move beyond -90 degrees
+      SmartDashboard.putBoolean("Negative safety?", true);
+    } else {
+      SmartDashboard.putBoolean("Positive safety?", false);
+      SmartDashboard.putBoolean("Negative safety?", false);
+    }
+  turretMotor.set(speed);  
+
+}
+
+public void setTurretAngle(double angle){ //assumes 0 is on right side ////////////////////////////////////////
+
+  SmartDashboard.putNumber("SETTING ANGLE TO", angle);
+  System.out.println("Setting Turret Angle to: " + Math.toDegrees(angle) + " degrees");
+  System.out.println("DO I EXIST");
 
   double currentAngle = getTurretAngle();
   double turretSpeed = TurretPID.calculate(currentAngle, angle);
-  setTurretspeed(turretSpeed);
+  setTurretspeedWithlimits(turretSpeed);
+
+
 }
 
 
@@ -131,7 +169,7 @@ public double getFieldPositionX() {
   NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable("Field");
 
   double[] pose = table.getEntry("Robot").getDoubleArray(new double[3]);
-  System.out.println("X Position: " + pose[0]);
+  //System.out.println("X Position: " + pose[0]);
   return pose[0];
 }
 
@@ -157,7 +195,7 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("SmartDashboard"
 
 
   table.getEntry("Robot").setDoubleArray(pose);
-  System.out.println("Field Position Set to X: " + x + " Y: " + y + " Rotation: " + rotation);
+  //System.out.println("Field Position Set to X: " + x + " Y: " + y + " Rotation: " + rotation);
   return pose[2];
 }
 
@@ -207,15 +245,30 @@ public PIDController getTurretPID(){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //VISION STUFF BELOW
 
-public double getTx() {
+public void printoutLimelightData(){
+
+  SmartDashboard.putNumber("TX", getTX());
+  SmartDashboard.putNumber("TY", getTY());
+  SmartDashboard.putNumber("TA", getTA());
+  SmartDashboard.putBoolean("TV", getTV());
+
+    SmartDashboard.putNumber("BlueX", getBotPoseBlue()[0]); 
+    SmartDashboard.putNumber("BlueY", getBotPoseBlue()[1]);
+    SmartDashboard.putNumber("BlueZ", getBotPoseBlue()[2]);
+    SmartDashboard.putNumber("BlueRoll", getBotPoseBlue()[3]);
+    SmartDashboard.putNumber("BluePitch", getBotPoseBlue()[4]);
+    SmartDashboard.putNumber("BlueYaw", getBotPoseBlue()[5]);
+}
+
+public double getTX() {
   return LimelightHelpers.getTX(""); //X position away from target position
 }
 
-public double getTy() {
+public double getTY() {
   return LimelightHelpers.getTY(""); //Y position away from target position
 }
 
-public double getTa() {
+public double getTA() {
   return LimelightHelpers.getTA("");
 }
 

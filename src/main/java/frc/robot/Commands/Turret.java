@@ -32,6 +32,9 @@ addRequirements(turretSub);}
         SmartDashboard.putNumber("Turret Current Angle", Math.toDegrees(turretSub.getTurretAngle()));
         SmartDashboard.putNumber("Turret Current RPM", turretSub.getTurretRPM());
         turretSub.setTurretAngle(angle);
+
+        
+
   }
 
   // Called once the command ends or is interrupted.

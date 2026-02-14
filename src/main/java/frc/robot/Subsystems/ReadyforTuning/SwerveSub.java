@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -58,7 +60,7 @@ private SwerveDrive swerveDrive;
   public SwerveSub() {
 
         //SwerveDriveTelemetry.verbosity = TelemetryVerbosity.MACHINE;
-
+          //updateVisionOdometry();
     try
     {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.maxSpeed, new Pose2d(new Translation2d(Meter.of(1), Meter.of(4)),Rotation2d.fromDegrees(0)));
@@ -252,6 +254,17 @@ public void setupPathPlanner()
     swerveDrive.resetOdometry(initialHolonomicPose);
   }
 
+
+  public void updateVisionOdometry(){
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+    if(limelightMeasurement.tagCount >= 2)
+    {
+      swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(.7,.7,9999999));
+    }
+  }
+
+
+
   public ChassisSpeeds getRobotVelocity()
   {
     return swerveDrive.getRobotVelocity();
@@ -267,6 +280,10 @@ public void setupPathPlanner()
     return getPose().getRotation().getDegrees();
   }
 
+        public double getAnglesInverted()
+  {
+    return -getPose().getRotation().getDegrees();
+  }
 
 /////////////////////////////////////////////////////////////////////
 
@@ -278,6 +295,11 @@ public void setupPathPlanner()
     public void zeroGyro()
   {
     swerveDrive.zeroGyro();
+  }
+
+      public double getGyroRaw()
+  {
+    return swerveDrive.getYaw().getDegrees();
   }
 
   public SwerveDrive getSwerveDrive() {

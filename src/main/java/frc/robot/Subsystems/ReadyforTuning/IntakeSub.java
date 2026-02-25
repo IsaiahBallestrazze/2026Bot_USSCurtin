@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -16,15 +17,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class IntakeSub extends SubsystemBase {
   /** Creates a new IntakeSub. */
 
-  private final SparkMax IntakeWheelMotor = new SparkMax(23, MotorType.kBrushless);
-  private final SparkMax AgitatorMotor = new SparkMax(22, MotorType.kBrushless);
-  private final SparkMax IntakeArmMotor = new SparkMax(21, MotorType.kBrushless);
-  RelativeEncoder IntakeArmEncoder = IntakeArmMotor.getEncoder();
-  PIDController ArmPID = new PIDController(0.001, 0, 0);
+  private final SparkMax IntakeWheelMotor = new SparkMax(11, MotorType.kBrushless); //roller NOT MECANUM
+  private final SparkMax AgitatorMotor = new SparkMax(10, MotorType.kBrushed);
+  private final SparkMax IntakeArmMotor = new SparkMax(9, MotorType.kBrushed);
+  //RelativeEncoder IntakeArmEncoder = IntakeArmMotor.getEncoder();
+  //PIDController ArmPID = new PIDController(0.001, 0, 0);
 
   
     public IntakeSub() {}
 
+  public void IntakeGroup(double rollerSpeed, double agitatorSpeed){
+    IntakeWheelMotor.set(rollerSpeed);
+    AgitatorMotor.set(agitatorSpeed);
+    //ArmSetpointBottom();
+  }
 
   public void IntakeWheelSet(double speed){
     IntakeWheelMotor.set(speed);
@@ -35,22 +41,8 @@ public class IntakeSub extends SubsystemBase {
   public void IntakeArmSet(double speed){ //ADD SAFETY LIMITS LATER
     IntakeArmMotor.set(speed);
   }
-  public double getIntakeArmPosition(){ //MAY WANT TO CONVERT TO DEGREES LATER
-    double IntakeArmAngle = IntakeArmEncoder.getPosition();
-    return IntakeArmAngle;
-  }
 
-  public void ArmSetpointBottom(){
-  //ADD SAFETY FEATURES TO TURRETSETPOINTS: PHYSICAL AND SOFTWARE LIMITS
-  Double speed = ArmPID.calculate(getIntakeArmPosition(), 90); //bottom position assuming 0 straight up inside frame
-    IntakeArmMotor.set(speed);  
-}
 
-  public void ArmSetpointTop(){
-  //ADD SAFETY FEATURES TO TURRETSETPOINTS: PHYSICAL AND SOFTWARE LIMITS
-  Double speed = ArmPID.calculate(getIntakeArmPosition(), 0); //top position assuming 0 straight up inside frame
-    IntakeArmMotor.set(speed);  
-}
 
   @Override
   public void periodic() {

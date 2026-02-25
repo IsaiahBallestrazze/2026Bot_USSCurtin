@@ -16,38 +16,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ShooterSub extends SubsystemBase {
   /** Creates a new Shooter. */
 
-
-  private final SparkMax feederWheel1 = new SparkMax(20, MotorType.kBrushless);
-  private final SparkMax feederWheel2 = new SparkMax(19, MotorType.kBrushless);
-  private final SparkMax flywheel = new SparkMax(36, MotorType.kBrushless);
-  RelativeEncoder flywheelEncoder = flywheel.getEncoder();
+  private final SparkMax mecanumWheels = new SparkMax(12, MotorType.kBrushed);
+  private final SparkMax greenWheels = new SparkMax(14, MotorType.kBrushless);
   PIDController FlywheelPID = new PIDController(0.001, 0, 0);
 
   public ShooterSub() {}
 
-  public void FeederSetALL(double speed){
-    feederWheel1.set(speed);
-    feederWheel2.set(speed);
+  public void ShooterGroup(double mecanumSpeed, double greenWheelSpeed){ 
+    mecanumWheels.set(mecanumSpeed);
+    greenWheels.set(greenWheelSpeed);
   }
+
+
+
   public void ShooterUnjam(){
-    flywheel.set(-.5);
-    feederWheel1.set(-.5);
-    feederWheel2.set(-.5);
+    greenWheels.set(-.5);
+    mecanumWheels.set(-.5);
   }
-
-    public void FlywheelSet(double speed){
-    flywheel.set(speed);
-  }
-
-  public double getFlywheelRPM(){
-    double flywheelRPM = flywheelEncoder.getVelocity();
-    return flywheelRPM;
-  } 
-  public void FlywheelSetRPM(){
-  //ADD SAFETY FEATURES TO TURRETSETPOINTS: PHYSICAL AND SOFTWARE LIMITS
-  Double speed = FlywheelPID.calculate(getFlywheelRPM(), 3000); //high RPM setpoint
-    flywheel.set(speed);  
-}
 
   @Override
   public void periodic() {

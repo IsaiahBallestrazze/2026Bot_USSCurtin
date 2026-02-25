@@ -34,16 +34,58 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
 
 
 
-      private final SparkMax turretMotor = new SparkMax(3, MotorType.kBrushless); // CAN ID
-        final RelativeEncoder turretEncoder = turretMotor.getEncoder();
+      private final SparkMax turretMotor = new SparkMax(15, MotorType.kBrushless); // CAN ID
+      private final SparkMax shooterMotor = new SparkMax(16, MotorType.kBrushless); // CAN ID
+
+
+
+        private final RelativeEncoder turretEncoder = turretMotor.getEncoder();
+        private final RelativeEncoder shooterEncoder = shooterMotor.getEncoder();
+
+
        PIDController TurretPID = new PIDController(2, 0, 0.15);
+       PIDController shooterPID = new PIDController(0.0001, 0.0002, 0.00005);
+
 
   public TurretSub() {
           turretMotor.setInverted(true);
+          shooterMotor.setInverted(true);
   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Turret stuff below
+
+public double calculateSetpointRPM(double distance ){ //finds the setpoint RPM for the flywheel based on distance from target
+  double setpointRPM = 200 * distance; //constant will need to be tuned. distance in meters
+  SmartDashboard.putNumber("Setpoint RPM", setpointRPM);
+  setFlywheelRPM(setpointRPM);
+  return setpointRPM;
+}
+
+public void setFlywheelRPM(double setpointRPM){
+  //where we are - where were going
+
+  double speed = shooterPID.calculate(0,(setpointRPM + shooterEncoder.getVelocity()));
+
+  shooterMotor.set(-speed);
+    SmartDashboard.putNumber("Shooter setSpeed", speed);
+    SmartDashboard.putNumber("Set RPM", setpointRPM);
+    SmartDashboard.putNumber("Current RPM", -shooterEncoder.getVelocity());
+    SmartDashboard.putNumber("Current RPM 2", -shooterEncoder.getVelocity());
+
+
+}
+
+  public void setFlywheelSpeed(double speed){
+  shooterMotor.set(-speed);
+
+  }
+
+
+
+
+
+
 
 public double CalculateRotationSpeed(double targetAngle, double turretCurrentAngle, PIDController pidController, double gyroAngle){
 
@@ -102,6 +144,12 @@ public double CalculateTargetAngle(double botX, double botY, double targetX, dou
   //System.out.println("Target Angle (radians): " + targetAngle);
   return targetAngle;
 }
+
+  public double calculateDistance(double botX, double botY, double targetX, double targetY){ //finds the distance between the robot and the target point
+    double distance = Math.sqrt(Math.pow((targetX - botX), 2) + Math.pow((targetY - botY), 2));
+    SmartDashboard.putNumber("Distance to Target", distance);
+    return distance;
+  }
 
 
 

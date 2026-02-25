@@ -8,16 +8,22 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimberSub extends SubsystemBase {
   /** Creates a new Climber. */
-    private final SparkMax ClimberMotor = new SparkMax(27, MotorType.kBrushless);
+    private final SparkMax ClimberMotor = new SparkMax(13, MotorType.kBrushless);
      RelativeEncoder ClimberEncoder = ClimberMotor.getEncoder();
     double maxClimb = 200;
-    double minClimb = -200;
+    double minClimb = 5;
 
   public ClimberSub() {}
+
+  public void ClimberSetSpeed(double speed){
+    ClimberMotor.set(speed);
+  }
+
 
   public void ClimberMotorUp(){
     double climberangle = ClimberEncoder.getPosition();
@@ -30,6 +36,12 @@ public class ClimberSub extends SubsystemBase {
   }
   public void ClimberMotorStop(){
     ClimberMotor.set(0);
+  }
+
+  public double getClimberPosition(){
+    double climberangle = ClimberEncoder.getPosition();
+    SmartDashboard.putNumber("Climber Position", climberangle);
+    return climberangle;
   }
 
   @Override

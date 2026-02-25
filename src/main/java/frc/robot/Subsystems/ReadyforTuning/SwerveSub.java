@@ -12,6 +12,7 @@ import frc.robot.LimelightHelpers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -60,7 +61,7 @@ private SwerveDrive swerveDrive;
   public SwerveSub() {
 
         //SwerveDriveTelemetry.verbosity = TelemetryVerbosity.MACHINE;
-          //updateVisionOdometry();
+          
     try
     {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.maxSpeed, new Pose2d(new Translation2d(Meter.of(1), Meter.of(4)),Rotation2d.fromDegrees(0)));
@@ -256,15 +257,48 @@ public void setupPathPlanner()
 
 
   public void updateVisionOdometry(){
-    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+    System.out.println("Updating Vision Odometry");
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
     if(limelightMeasurement.tagCount >= 2)
     {
       swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(.7,.7,9999999));
+    } else{
+          System.out.println("Dual april tags not found");
     }
   }
 
+  /////////////////////
+  public void updateVisionOdometryReal(){
+    // creates an array to store the x and y position data from the limelight
+    double[] xPositionData = new double[9];
+    double[] yPositionData = new double[9];
 
+    System.out.println("Updating Vision Odometry REAL");
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+    if(limelightMeasurement.tagCount >= 2){
+      System.out.println("Found " + limelightMeasurement.tagCount + " april tags");
+      for (int i = 0; i < xPositionData.length; i++){
+        xPositionData[i] = limelightMeasurement.pose.getX();
+        yPositionData[i] = limelightMeasurement.pose.getY();
+      }
+      System.out.println("collected data from X" + Arrays.toString(xPositionData) + " collected data from Y" + Arrays.toString(yPositionData));
+      double medianX = getMedian(xPositionData);
+      double medianY = getMedian(yPositionData);
+      System.out.println("Median X: " + medianX + " Median Y: " + medianY);
+      swerveDrive.addVisionMeasurement(new Pose2d(medianX, medianY, limelightMeasurement.pose.getRotation()), limelightMeasurement.timestampSeconds, VecBuilder.fill(.7,.7,9999999));
+      System.out.println("Reset odo");
+    } else{
+          System.err.println("Dual april tags not found");
+    }
+    
+  }
+  
 
+public static double getMedian(double[] values) { //ONLY USE FOR UPDATE VISION ODOMETRY REAL
+    Arrays.sort(values);              
+    return values[5]; 
+}
+////////////////////////////
   public ChassisSpeeds getRobotVelocity()
   {
     return swerveDrive.getRobotVelocity();

@@ -60,7 +60,7 @@ private SwerveDrive swerveDrive;
 
   public SwerveSub() {
 
-        //SwerveDriveTelemetry.verbosity = TelemetryVerbosity.MACHINE;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
           
     try
     {

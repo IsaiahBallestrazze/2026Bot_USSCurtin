@@ -44,7 +44,7 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
 
 
        PIDController TurretPID = new PIDController(2, 0, 0.15);
-       PIDController shooterPID = new PIDController(0.0001, 0.0002, 0.00005);
+       PIDController shooterPID = new PIDController(0.00015, 0.0003, 0.00005); //0.00015, 0.0003, 0.00005 best yet
 
 
   public TurretSub() {
@@ -58,7 +58,7 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
 public double calculateSetpointRPM(double distance ){ //finds the setpoint RPM for the flywheel based on distance from target
   double setpointRPM = 200 * distance; //constant will need to be tuned. distance in meters
   SmartDashboard.putNumber("Setpoint RPM", setpointRPM);
-  setFlywheelRPM(setpointRPM);
+  //setFlywheelRPM(setpointRPM);
   return setpointRPM;
 }
 
@@ -165,10 +165,18 @@ public double getTurretPosition(){
   return turretEncoder.getPosition();
 }
 
+
+
 public double getTurretRPM(){
   SmartDashboard.putNumber("Turret RPM", turretMotor.getEncoder().getVelocity());
   return turretMotor.getEncoder().getVelocity();
 }
+
+public double getFlywheelRPM(){
+  SmartDashboard.putNumber("Flywheel RPM", shooterEncoder.getVelocity());
+  return -shooterEncoder.getVelocity();
+}
+
 
 public double getTurretAngle(){ //assumes 0 is on right side
   double turretAngle = Math.toRadians(turretEncoder.getPosition() / 19.5); //gives 0 to pi
@@ -183,10 +191,10 @@ public double getTurretAngle(){ //assumes 0 is on right side
 
   public void setTurretspeedWithlimits(double speed) {
 
-    if (speed > 0 && getTurretAngle() >= Math.toRadians(90)) {
+    if (speed > 0 && getTurretAngle() >= Math.toRadians(75)) {
       speed = 0; // Stop the motor if trying to move beyond +90 degrees
       SmartDashboard.putBoolean("Positive safety?", true);
-    } else if (speed < 0 && getTurretAngle() <= Math.toRadians(-90)) {
+    } else if (speed < 0 && getTurretAngle() <= Math.toRadians(-75)) {
       speed = 0; // Stop the motor if trying to move beyond -90 degrees
       SmartDashboard.putBoolean("Negative safety?", true);
     } else {

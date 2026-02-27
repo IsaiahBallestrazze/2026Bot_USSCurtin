@@ -18,13 +18,12 @@ public class ShooterSub extends SubsystemBase {
 
   private final SparkMax mecanumWheels = new SparkMax(12, MotorType.kBrushed);
   private final SparkMax greenWheels = new SparkMax(14, MotorType.kBrushless);
-  PIDController FlywheelPID = new PIDController(0.001, 0, 0);
 
   public ShooterSub() {}
 
   public void ShooterGroup(double mecanumSpeed, double greenWheelSpeed){ 
     mecanumWheels.set(mecanumSpeed);
-    greenWheels.set(greenWheelSpeed);
+    greenWheels.set(-greenWheelSpeed);
   }
 
 
@@ -33,6 +32,14 @@ public class ShooterSub extends SubsystemBase {
     greenWheels.set(-.5);
     mecanumWheels.set(-.5);
   }
+
+    public void mecanumSet(double speed) {
+    mecanumWheels.set(speed);
+}
+
+    public void greenWheelSet(double speed) {
+    greenWheels.set(-speed);
+}
 
   @Override
   public void periodic() {

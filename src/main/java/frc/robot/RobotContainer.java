@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Commands.SmartShoot;
 import frc.robot.Commands.Turret;
 import frc.robot.Subsystems.ReadyforTuning.ClimberSub;
 import frc.robot.Subsystems.ReadyforTuning.IntakeSub;
@@ -59,8 +60,8 @@ private double bluealliancetargetY = 4.02; //Y position of target
         
   }
 SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(), //gives inputs to swerve from left joystick for translating
-                                                                () -> driverController.getLeftY() * 1, //inverts controller
-                                                                () -> driverController.getLeftX() * 1)
+                                                                () -> driverController.getLeftY() * -1, //inverts controller
+                                                                () -> driverController.getLeftX() * -1)
                                                             .withControllerRotationAxis(driverController::getRightX)
                                                             .deadband(OperatorConstants.DEADBAND)
                                                             .scaleTranslation(3) //SPEED CHANGE
@@ -124,21 +125,37 @@ private void configureBindings() { //default
             new JoystickButton(buttonBox, 3).onFalse(new RunCommand(() -> intakeSub.IntakeGroup(0,0), intakeSub));
 
             ///////
-     new JoystickButton(buttonBox, 4).onTrue(new RunCommand(() -> shootersub.ShooterGroup(.7,-.5), shootersub));
+     new JoystickButton(buttonBox, 4).onTrue(new RunCommand(() -> shootersub.ShooterGroup(.7,.5), shootersub));
             new JoystickButton(buttonBox, 4).onFalse(new RunCommand(() -> shootersub.ShooterGroup(0,0), shootersub));
 
-     new JoystickButton(buttonBox, 6).onTrue(new RunCommand(() -> shootersub.ShooterGroup(-.7,.5), shootersub));
-            new JoystickButton(buttonBox, 6).onFalse(new RunCommand(() -> shootersub.ShooterGroup(0,0), shootersub));
+     new JoystickButton(buttonBox, 6).onTrue(new RunCommand(() -> shootersub.ShooterGroup(-.7,-.5), shootersub));
+        new JoystickButton(buttonBox, 6).onTrue(new RunCommand(() -> turretSub.setFlywheelSpeed(-.5), turretSub));
+
+      new JoystickButton(buttonBox, 6).onFalse(new RunCommand(() -> shootersub.ShooterGroup(0,0), shootersub));
+          new JoystickButton(buttonBox, 6).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
+
             ////////////////////////
-     new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> turretSub.setFlywheelRPM(1000), turretSub));
-            new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
+     //new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> turretSub.setFlywheelRPM(1000), turretSub));
+     
+    new JoystickButton(buttonBox, 5).onTrue(new SmartShoot(shootersub, turretSub, intakeSub, buttonBox, bluealliancetargetX, bluealliancetargetY));
+    //new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
+    new JoystickButton(buttonBox, 7).whileTrue(new RunCommand(() -> drivebase.updateVisionOdometryReal(), turretSub));
 
-
+      // //fear this single line of code
+      new JoystickButton(buttonBox, 8).toggleOnTrue(new RunCommand(() -> turretSub.setTurretspeedWithlimits(
+        turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
+                                                                        turretSub.getFieldPositionX(), 
+                                                                        turretSub.getFieldPositionY(), 
+                                                                        bluealliancetargetX, 
+                                                                        bluealliancetargetY),
+        turretSub.getTurretAngle(), 
+        turretSub.getTurretPID(), 
+        Math.toRadians(drivebase.getAnglesInverted()))))); //converts the gyro to radians for math
 
 
       //new JoystickButton(buttonBox, 1).toggleOnTrue(new RunCommand(() -> climberSub.getClimberPosition(), climberSub));
       //new JoystickButton(buttonBox, 2).toggleOnTrue(new RunCommand(() -> intakeSub.getIntakeArmPosition(), intakeSub));
-      new JoystickButton(buttonBox, 3).toggleOnTrue(new RunCommand(() -> turretSub.getTurretAngle(), turretSub));
+      new JoystickButton(buttonBox, 3).onTrue(new RunCommand(() -> turretSub.getTurretAngle(), turretSub));
 
 
 

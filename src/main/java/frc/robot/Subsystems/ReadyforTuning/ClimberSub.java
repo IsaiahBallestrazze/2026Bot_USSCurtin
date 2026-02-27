@@ -21,18 +21,21 @@ public class ClimberSub extends SubsystemBase {
   public ClimberSub() {}
 
   public void ClimberSetSpeed(double speed){
+      getClimberPosition();
     ClimberMotor.set(speed);
   }
 
 
   public void ClimberMotorUp(){
     double climberangle = ClimberEncoder.getPosition();
-    if(maxClimb >= climberangle) ClimberMotor.set(.5);
+    SmartDashboard.putNumber("Climber Position", climberangle);
+    if(maxClimb >= climberangle) ClimberMotor.set(1);
 
   }
   public void ClimberMotorDown(){
     double climberangle = ClimberEncoder.getPosition();
-    if(minClimb <= climberangle) ClimberMotor.set(-.5);
+    SmartDashboard.putNumber("Climber Position", climberangle);
+    if(minClimb <= climberangle) ClimberMotor.set(-1);
   }
   public void ClimberMotorStop(){
     ClimberMotor.set(0);

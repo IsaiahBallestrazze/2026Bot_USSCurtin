@@ -56,7 +56,8 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
 //Turret stuff below
 
 public double calculateSetpointRPM(double distance ){ //finds the setpoint RPM for the flywheel based on distance from target
-  double setpointRPM = 200 * distance; //constant will need to be tuned. distance in meters
+  //double setpointRPM = 200 * distance; //constant will need to be tuned. distance in meters
+  double setpointRPM = (-0.0196576+Math.sqrt(0.00038641 + 0.00003222676 * (34.80782+(distance * 39.3701)))/0.00001611338); //quadratic formula to find setpointRPM based on distance. distance in meters
   SmartDashboard.putNumber("Setpoint RPM", setpointRPM);
   //setFlywheelRPM(setpointRPM);
   return setpointRPM;

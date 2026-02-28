@@ -15,14 +15,20 @@ public class ClimberSub extends SubsystemBase {
   /** Creates a new Climber. */
     private final SparkMax ClimberMotor = new SparkMax(13, MotorType.kBrushless);
      RelativeEncoder ClimberEncoder = ClimberMotor.getEncoder();
-    double maxClimb = 200;
+    double maxClimb = 210;
     double minClimb = 5;
 
   public ClimberSub() {}
 
   public void ClimberSetSpeed(double speed){
+    System.out.println("CLIMBER SPEED: " + speed);
       getClimberPosition();
-    ClimberMotor.set(speed);
+    if(speed > 0 && getClimberPosition() > maxClimb) {
+      ClimberMotor.set(0);
+    } else{
+      ClimberMotor.set(speed);
+    }
+
   }
 
 

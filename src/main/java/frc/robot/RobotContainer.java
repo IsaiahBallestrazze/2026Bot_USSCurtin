@@ -45,8 +45,12 @@ private final TurretSub turretSub = new TurretSub();
   private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
 
 //TARGET POSITION ON FIELD
-private double bluealliancetargetX = 6.23; //X position of target
-private double bluealliancetargetY = 4.02; //Y position of target
+private double bluealliancetargetX = 5.4; //X position of target    VERTICLE?
+private double bluealliancetargetY = 4; //Y position of target HORIZONTAL?
+
+
+// private double bluealliancetargetX = 6.23; //X position of target
+// private double bluealliancetargetY = 4.02; //Y position of target
 
 
 
@@ -88,8 +92,7 @@ private void configureBindings() { //default
     //XBOX CONTROLLER
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
     driverController.a().onTrue(new InstantCommand (drivebase::zeroGyro, drivebase));
-    driverController.b().whileTrue(new RunCommand (()-> turretSub.setFlywheelRPM(turretSub.calculateSetpointRPM(turretSub.calculateDistance(turretSub.getFieldPositionX(), turretSub.getFieldPositionY(), bluealliancetargetX, bluealliancetargetY))), turretSub));
-    driverController.b().onFalse(new RunCommand (()-> turretSub.setFlywheelSpeed(0), turretSub));
+
     
 
     // driverController.b().onTrue(new RunCommand(() -> System.out.println("ontrue")));
@@ -121,7 +124,7 @@ private void configureBindings() { //default
       new JoystickButton(buttonBox, 2).onTrue(new RunCommand(() -> intakeSub.IntakeArmSet(.5), intakeSub)); //DOWN
             new JoystickButton(buttonBox, 2).onFalse(new RunCommand(() -> intakeSub.IntakeArmSet(0), intakeSub));
 
-      new JoystickButton(buttonBox, 3).onTrue(new RunCommand(() -> intakeSub.IntakeGroup(1,-.5), intakeSub));
+      new JoystickButton(buttonBox, 3).onTrue(new RunCommand(() -> intakeSub.IntakeGroup(1,.5), intakeSub));
             new JoystickButton(buttonBox, 3).onFalse(new RunCommand(() -> intakeSub.IntakeGroup(0,0), intakeSub));
 
             ///////
@@ -135,13 +138,13 @@ private void configureBindings() { //default
           new JoystickButton(buttonBox, 6).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
 
             ////////////////////////
-     new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> turretSub.setFlywheelRPM(4500), turretSub));
-          new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> intakeSub.AgitatorSet(.5), intakeSub));
-                    new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> shootersub.ShooterGroup(1,1), shootersub));
-              // new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> turretSub.setFlywheelRPM(400), turretSub));
+     new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> turretSub.setFlywheelRPM(1000), turretSub));
+         new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> intakeSub.AgitatorSet(-.5), intakeSub));
+          new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> shootersub.ShooterGroup(1,1), shootersub));
+          //new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> turretSub.setFlywheelRPM(400), turretSub));
 
      
-    //new JoystickButton(buttonBox, 5).onTrue(new SmartShoot(shootersub, turretSub, intakeSub, buttonBox, bluealliancetargetX, bluealliancetargetY));
+   // new JoystickButton(buttonBox, 5).onTrue(new SmartShoot(shootersub, turretSub, intakeSub, buttonBox, bluealliancetargetX, bluealliancetargetY));
     new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
         new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> intakeSub.AgitatorSet(0), intakeSub));
                 new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> shootersub.ShooterGroup(0,0), shootersub));
@@ -166,27 +169,10 @@ private void configureBindings() { //default
       new JoystickButton(buttonBox, 3).onTrue(new RunCommand(() -> turretSub.getTurretAngle(), turretSub));
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            new JoystickButton(buttonBox, 9).onTrue(new RunCommand(() -> climberSub.ClimberSetSpeed(-1), climberSub)); //negative brings climber down
+            new JoystickButton(buttonBox, 9).onTrue(new RunCommand(() -> climberSub.ClimberSetSpeed(1), climberSub)); //negative brings climber down
             new JoystickButton(buttonBox, 9).onFalse(new RunCommand(() -> climberSub.ClimberSetSpeed(0), climberSub));
 
-            new JoystickButton(buttonBox, 10).onTrue(new RunCommand(() -> climberSub.ClimberSetSpeed(1), climberSub)); //negative brings climber down
+            new JoystickButton(buttonBox, 10).onTrue(new RunCommand(() -> climberSub.ClimberSetSpeed(-1), climberSub)); //negative brings climber down
             new JoystickButton(buttonBox, 10).onFalse(new RunCommand(() -> climberSub.ClimberSetSpeed(0), climberSub));
 
             // new JoystickButton(buttonBox, 5).onTrue(new RunCommand(() -> climberSub.ClimberMotorDown(), climberSub));

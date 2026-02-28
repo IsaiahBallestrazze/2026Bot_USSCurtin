@@ -21,8 +21,8 @@ GenericHID buttonBox;
 double targetRPM;
 double targetx;
 double targety;
-private final double turretConstant = 500; //turret constant to convert distance to RPM
-private final double turretOffset = 300;
+// private final double turretConstant = 500; //turret constant to convert distance to RPM
+// private final double turretOffset = 300;
 
   public SmartShoot(ShooterSub l_shooterSub, TurretSub l_turretSub, IntakeSub l_intakeSub, GenericHID l_buttonBox, double l_targetx, double l_targety) {
     shooterSub = l_shooterSub;
@@ -42,13 +42,14 @@ private final double turretOffset = 300;
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    targetRPM = ((turretSub.calculateDistance(turretSub.getFieldPositionX(), turretSub.getFieldPositionY(), targetx, targety)) * turretConstant) + turretOffset; //turret constant
+    // targetRPM = ((turretSub.calculateDistance(turretSub.getFieldPositionX(), turretSub.getFieldPositionY(), targetx, targety)) * turretConstant) + turretOffset; //turret constant
+    targetRPM = turretSub.calculateSetpointRPM(turretSub.calculateDistance(turretSub.getFieldPositionX(), turretSub.getFieldPositionY(), targetx, targety));
     turretSub.setFlywheelRPM(targetRPM);
 
     System.out.println("SHOOTING");
     System.out.println(turretSub.getFlywheelRPM());
 
-    if(turretSub.getFlywheelRPM() > (targetRPM - 10)){
+    if((turretSub.getFlywheelRPM() > (targetRPM - 20)) && (turretSub.getFlywheelRPM() < (targetRPM + 20))){ //if flywheel is at target RPM, start feeding balls
       shooterSub.ShooterGroup(1, 1);
       intakeSub.AgitatorSet(-.5);
     }

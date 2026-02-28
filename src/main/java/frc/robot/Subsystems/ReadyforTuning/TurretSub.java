@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -57,7 +58,7 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
 
 public double calculateSetpointRPM(double distance ){ //finds the setpoint RPM for the flywheel based on distance from target
   //double setpointRPM = 200 * distance; //constant will need to be tuned. distance in meters
-  double setpointRPM = (-0.0196576+Math.sqrt(0.00038641 + 0.00003222676 * (34.80782+(distance * 39.3701)))/0.00001611338); //quadratic formula to find setpointRPM based on distance. distance in meters
+  double setpointRPM = (-0.0196576 + Math.sqrt((0.00038641 + 0.00003222676 * (34.80782+(Units.metersToInches(distance))))))/0.00001611338; //quadratic formula to find setpointRPM based on distance. distance in meters
   SmartDashboard.putNumber("Setpoint RPM", setpointRPM);
   //setFlywheelRPM(setpointRPM);
   return setpointRPM;
@@ -192,10 +193,10 @@ public double getTurretAngle(){ //assumes 0 is on right side
 
   public void setTurretspeedWithlimits(double speed) {
 
-    if (speed > 0 && getTurretAngle() >= Math.toRadians(75)) {
+    if (speed > 0 && getTurretAngle() >= Math.toRadians(70)) {
       speed = 0; // Stop the motor if trying to move beyond +90 degrees
       SmartDashboard.putBoolean("Positive safety?", true);
-    } else if (speed < 0 && getTurretAngle() <= Math.toRadians(-75)) {
+    } else if (speed < 0 && getTurretAngle() <= Math.toRadians(-70)) {
       speed = 0; // Stop the motor if trying to move beyond -90 degrees
       SmartDashboard.putBoolean("Negative safety?", true);
     } else {

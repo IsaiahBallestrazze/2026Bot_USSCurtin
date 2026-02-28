@@ -282,8 +282,8 @@ public void setupPathPlanner()
         yPositionData[i] = limelightMeasurement.pose.getY();
       }
       System.out.println("collected data from X" + Arrays.toString(xPositionData) + " collected data from Y" + Arrays.toString(yPositionData));
-      double medianX = getMedian(xPositionData);
-      double medianY = getMedian(yPositionData);
+      double medianX = getMedian(xPositionData)+0; //changes the placement on the field
+      double medianY = getMedian(yPositionData)+0;
       System.out.println("Median X: " + medianX + " Median Y: " + medianY);
       swerveDrive.addVisionMeasurement(new Pose2d(medianX, medianY, limelightMeasurement.pose.getRotation()), limelightMeasurement.timestampSeconds, VecBuilder.fill(.7,.7,9999999));
       System.out.println("Reset odo");

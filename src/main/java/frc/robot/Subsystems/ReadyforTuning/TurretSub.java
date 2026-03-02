@@ -28,6 +28,12 @@ public class TurretSub extends SubsystemBase {
 //if it cant reach the target position it will go to the closest side 180 or 0 no matter the gyro rotation
  //0 degrees facing forward
 
+  // TARGET POSITION ON FIELD
+  private double bluealliancetargetX = 5.4; // X position of target VERTICLE?
+  private double bluealliancetargetY = 4; // Y position of target HORIZONTAL?
+  private double targetXReal;
+  private double targetYReal;
+
   double var1 = -0.0204662; //more negative = higher RPM in total
   double var2 = 0.001321269; //base sqrt value, affect close range shots more than long range ones
   double var3 = 0.0000339712; //distance sensitivity, changes long range shots more than close range ones / changes curve
@@ -46,6 +52,9 @@ ShuffleboardTab shooterTab = Shuffleboard.getTab("Shooter Tuning"); //creates sh
   GenericEntry liveVar3Out;
   GenericEntry liveVar4Out;
   GenericEntry liveVar5Out;
+
+  GenericEntry targetXEntry;
+  GenericEntry targetYEntry;
 
 NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assuming this is right
 
@@ -105,8 +114,17 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
     liveVar3Out = shooterTab.add("Live Var3", var3).getEntry();
     liveVar4Out = shooterTab.add("Live Var4", var4).getEntry();
     liveVar5Out = shooterTab.add("Live Var5", var5).getEntry();
-            
-            
+    
+  targetXEntry = shooterTab.add("Target X", bluealliancetargetX)
+             .withWidget("Number Slider")
+             .withProperties(Map.of("min", 0, "max", 10, "step", 0.1))
+             .getEntry();  
+  //shooterTab.add("real Var1", var1);
+
+ targetYEntry = shooterTab.add("Target Y", bluealliancetargetY)
+             .withWidget("Number Slider")
+             .withProperties(Map.of("min", 0.0, "max", 10, "step", 0.1))
+             .getEntry();  
             }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,15 +150,21 @@ public double calculateSetpointRPM(double distance ){ //finds the setpoint RPM f
        Double liveVar4 = var4Entry.getDouble(0);
        Double liveVar5 = var5Entry.getDouble(0);
 
-    liveVar1Out.setDouble(var1Entry.getDouble(var1));
-    liveVar2Out.setDouble(var2Entry.getDouble(var2));
-    liveVar3Out.setDouble(var3Entry.getDouble(var3));
-    liveVar4Out.setDouble(var4Entry.getDouble(var4));
-    liveVar5Out.setDouble(var5Entry.getDouble(var5));
+      liveVar1Out.setDouble(var1Entry.getDouble(0));
+      liveVar2Out.setDouble(var2Entry.getDouble(0));
+      liveVar3Out.setDouble(var3Entry.getDouble(0));
+      liveVar4Out.setDouble(var4Entry.getDouble(0));
+      liveVar5Out.setDouble(var5Entry.getDouble(0));
 
+      targetXReal = targetXEntry.getDouble(0);
+      targetYReal = targetYEntry.getDouble(0);
+
+      System.out.println("Target X: " + targetXEntry.getDouble(0));
+      System.out.println("Target Y: " + targetYEntry.getDouble(0));
      //System.out.println("Live Var1: " + liveVar1 + " Live Var2: " + liveVar2 + " Live Var3: " + liveVar3 + " Live Var4: " + liveVar4 + " Live Var5: " + liveVar5);
 
-  double setpointRPM = ( var1 + Math.sqrt((var2 + var3 * (var4 +(Units.metersToInches(distance))))))/var5; //quadratic formula to find setpointRPM based on distance. distance in meters
+  //double setpointRPM = ( var1 + Math.sqrt((var2 + var3 * (var4 +(Units.metersToInches(distance))))))/var5; //quadratic formula to find setpointRPM based on distance. distance in meters
+  double setpointRPM = ( var1Entry.getDouble(0) + Math.sqrt((var2Entry.getDouble(0) + var3Entry.getDouble(0) * (var4Entry.getDouble(0) +(Units.metersToInches(distance))))))/var5Entry.getDouble(0); //quadratic formula to find setpointRPM based on distance. distance in meters
 
   //double setpointRPM = (-0.0204662 + Math.sqrt((0.001321269 + 0.0000339712 * (0.0000339712*(Units.metersToInches(distance))))))/0.0000169856; //quadratic formula to find setpointRPM based on distance. distance in meters
   SmartDashboard.putNumber("Setpoint RPM", setpointRPM);
@@ -224,15 +248,15 @@ public double CalculateRotationSpeed(double targetAngle, double turretCurrentAng
   return turretSpeed; //gives speed and direction
 }
 
-public double CalculateTargetAngle(double botX, double botY, double targetX, double targetY){ //finds the angle between the robot and the target point
-  Double targetAngle = Math.atan2((targetY - botY),(targetX - botX)); // Use atan2 to handle all quadrants properly
+public double CalculateTargetAngle(double botX, double botY){ //finds the angle between the robot and the target point
+  Double targetAngle = Math.atan2((targetYEntry.getDouble(0) - botY),(targetXEntry.getDouble(0) - botX)); // Use atan2 to handle all quadrants properly
   //point slope form to find line
   //System.out.println("Target Angle (radians): " + targetAngle);
   return targetAngle;
 }
 
-  public double calculateDistance(double botX, double botY, double targetX, double targetY){ //finds the distance between the robot and the target point
-    double distance = Math.sqrt(Math.pow((targetX - botX), 2) + Math.pow((targetY - botY), 2));
+  public double calculateDistance(double botX, double botY){ //finds the distance between the robot and the target point
+    double distance = Math.sqrt(Math.pow((targetXEntry.getDouble(0) - botX), 2) + Math.pow((targetYEntry.getDouble(0) - botY), 2));
     SmartDashboard.putNumber("Distance to Target", distance);
     return distance;
   }

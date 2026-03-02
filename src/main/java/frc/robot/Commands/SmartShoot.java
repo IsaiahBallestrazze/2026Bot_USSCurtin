@@ -20,18 +20,16 @@ TurretSub turretSub;
 IntakeSub intakeSub;
 GenericHID buttonBox;
 double targetRPM;
-double targetx;
-double targety;
+
 // private final double turretConstant = 500; //turret constant to convert distance to RPM
 // private final double turretOffset = 300;
 
-  public SmartShoot(ShooterSub l_shooterSub, TurretSub l_turretSub, IntakeSub l_intakeSub, GenericHID l_buttonBox, double l_targetx, double l_targety) {
+  public SmartShoot(ShooterSub l_shooterSub, TurretSub l_turretSub, IntakeSub l_intakeSub, GenericHID l_buttonBox) {
     shooterSub = l_shooterSub;
     turretSub = l_turretSub;
     intakeSub = l_intakeSub;
     buttonBox = l_buttonBox;
-    targetx = l_targetx;
-    targety = l_targety;
+
     addRequirements(shooterSub, turretSub, intakeSub);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -46,9 +44,8 @@ double targety;
     // targetRPM = ((turretSub.calculateDistance(turretSub.getFieldPositionX(), turretSub.getFieldPositionY(), targetx, targety)) * turretConstant) + turretOffset; //turret constant LINEAR BOO
     targetRPM = turretSub.calculateSetpointRPM(turretSub.calculateDistance(
                                                                             turretSub.getFieldPositionX(),
-                                                                            turretSub.getFieldPositionY(),
-                                                                            targetx,
-                                                                            targety));
+                                                                            turretSub.getFieldPositionY()
+                                                                            ));
     turretSub.setFlywheelRPM(targetRPM);
     System.out.println("SHOOTING");
     // System.out.println(turretSub.getFlywheelRPM());

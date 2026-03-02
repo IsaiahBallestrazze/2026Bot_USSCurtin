@@ -40,9 +40,9 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
 
-  // TARGET POSITION ON FIELD
-  private double bluealliancetargetX = 5.4; // X position of target VERTICLE?
-  private double bluealliancetargetY = 4; // Y position of target HORIZONTAL?
+  // // TARGET POSITION ON FIELD
+  // private double bluealliancetargetX = 5.4; // X position of target VERTICLE?
+  // private double bluealliancetargetY = 4; // Y position of target HORIZONTAL?
 
   // private double bluealliancetargetX = 6.23; //X position of target
   // private double bluealliancetargetY = 4.02; //Y position of target
@@ -87,7 +87,7 @@ public class RobotContainer {
     // XBOX CONTROLLER
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
     driverController.a().onTrue(new InstantCommand(drivebase::zeroGyro, drivebase));
-    driverController.b().onTrue(new SmartShootCopy(shootersub, turretSub, intakeSub, buttonBox, driverController, bluealliancetargetX, bluealliancetargetY));
+    driverController.b().onTrue(new SmartShootCopy(shootersub, turretSub, intakeSub, buttonBox, driverController));
 
     // driverController.b().onTrue(new RunCommand(() ->
     // System.out.println("ontrue")));
@@ -116,7 +116,7 @@ public class RobotContainer {
     new JoystickButton(buttonBox, 4).onTrue(new RunCommand(() -> shootersub.ShooterGroup(.7, .5), shootersub));
       new JoystickButton(buttonBox, 4).onFalse(new RunCommand(() -> shootersub.ShooterGroup(0, 0), shootersub));
 
-    new JoystickButton(buttonBox, 5).onTrue(new SmartShoot(shootersub, turretSub, intakeSub, buttonBox, bluealliancetargetX, bluealliancetargetY));
+    new JoystickButton(buttonBox, 5).onTrue(new SmartShoot(shootersub, turretSub, intakeSub, buttonBox));
       // new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
       // new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> intakeSub.AgitatorSet(0), intakeSub));
       // new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> shootersub.ShooterGroup(0, 0), shootersub));
@@ -131,13 +131,11 @@ public class RobotContainer {
     // //fear this single line of code
     new JoystickButton(buttonBox, 8).toggleOnTrue(new RunCommand(() -> turretSub.setTurretspeedWithlimits(
         turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
-            turretSub.getFieldPositionX(),
-            turretSub.getFieldPositionY(),
-            bluealliancetargetX,
-            bluealliancetargetY),
-            turretSub.getTurretAngle(),
-            turretSub.getTurretPID(),
-            Math.toRadians(drivebase.getAnglesInverted()))))); // converts the gyro to radians for math
+                                                                        turretSub.getFieldPositionX(),
+                                                                        turretSub.getFieldPositionY()),
+                                          turretSub.getTurretAngle(),
+                                          turretSub.getTurretPID(),
+                                          Math.toRadians(drivebase.getAnglesInverted()))))); // converts the gyro to radians for math
 
     new JoystickButton(buttonBox, 9).onTrue(new RunCommand(() -> climberSub.ClimberSetSpeed(1), climberSub)); // negative brings climber down
       new JoystickButton(buttonBox, 9).onFalse(new RunCommand(() -> climberSub.ClimberSetSpeed(0), climberSub));

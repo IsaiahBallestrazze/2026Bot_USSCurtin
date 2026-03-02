@@ -287,6 +287,11 @@ public double getFlywheelRPM(){
   return -shooterEncoder.getVelocity();
 }
 
+public double getFlywheelPosition(){ //NEED TO INVERT?
+  SmartDashboard.putNumber("Flywheel Position", shooterEncoder.getPosition());
+  return -shooterEncoder.getPosition();
+}
+
 
 public double getTurretAngle(){ //assumes 0 is on right side
   double turretAngle = Math.toRadians(turretEncoder.getPosition() / 19.5); //gives 0 to pi

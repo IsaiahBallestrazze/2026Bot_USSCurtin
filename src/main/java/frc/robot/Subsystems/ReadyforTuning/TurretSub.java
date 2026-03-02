@@ -4,15 +4,19 @@
 
 package frc.robot.Subsystems.ReadyforTuning;
 
+import java.util.Map;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
@@ -22,14 +26,26 @@ public class TurretSub extends SubsystemBase {
 
 //Turret is always on (toggle?) and pointing to our target position. 
 //if it cant reach the target position it will go to the closest side 180 or 0 no matter the gyro rotation
-//Turret 0 degrees is facing right side of robot, 90 is forward, 180 is left side of robot
+ //0 degrees facing forward
 
-private double targetX = 0; //X position of target ABSOLUTE except for red/blue side
-private double targetY = 0; //Y position of target ABSOLUTE
+  double var1 = -0.0204662; //more negative = higher RPM in total
+  double var2 = 0.001321269; //base sqrt value, affect close range shots more than long range ones
+  double var3 = 0.0000339712; //distance sensitivity, changes long range shots more than close range ones / changes curve
+  double var4 = 26.56379; //distance offset, shifts where the robot thinks its on the curve
+  double var5 = 0.0000169856; //scales entire speed 
 
-private double robotX = 0; //X position of robot
-private double robotY = 0; //Y position of robot
+ShuffleboardTab shooterTab = Shuffleboard.getTab("Shooter Tuning"); //creates shooter tab in shuffleboard
+  GenericEntry var1Entry;
+  GenericEntry var2Entry;
+  GenericEntry var3Entry;
+  GenericEntry var4Entry;
+  GenericEntry var5Entry;
 
+  GenericEntry liveVar1Out;
+  GenericEntry liveVar2Out;
+  GenericEntry liveVar3Out;
+  GenericEntry liveVar4Out;
+  GenericEntry liveVar5Out;
 
 NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assuming this is right
 
@@ -49,16 +65,84 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
 
 
   public TurretSub() {
-          turretMotor.setInverted(true);
-          shooterMotor.setInverted(true);
-  }
+    turretMotor.setInverted(true);
+    shooterMotor.setInverted(true);
+          
+
+    
+ var1Entry = shooterTab.add("var1 (Raises total RPM)", var1)
+             .withWidget("Number Slider")
+             .withProperties(Map.of("min", -0.1, "max", 0.1, "step", 0.001))
+             .getEntry();  
+  //shooterTab.add("real Var1", var1);
+
+ var2Entry = shooterTab.add("var2 (Close Range)", var2)
+             .withWidget("Number Slider")
+             .withProperties(Map.of("min", 0.0, "max", .05, "step", 0.0001))
+             .getEntry();  
+  //shooterTab.add("real Var2", var2);
+
+ var3Entry = shooterTab.add("var3 (Long Range)", var3)
+             .withWidget("Number Slider")
+             .withProperties(Map.of("min", 0.0, "max", 0.0001, "step", 0.000001)) //0.00008
+             .getEntry();  
+  //shooterTab.add("real Var3", var3);
+
+ var4Entry = shooterTab.add("var4 (distance offset)", var4)
+             .withWidget("Number Slider")
+             .withProperties(Map.of("min", 0.0, "max", 35, "step", 0.01))
+             .getEntry();  
+  //shooterTab.add("real Var4", var4);
+
+ var5Entry = shooterTab.add("var5 (scale)", var5)
+             .withWidget("Number Slider")
+             .withProperties(Map.of("min", 0.0, "max", 0.00005, "step", 0.000001))
+             .getEntry();  
+  //shooterTab.add("real Var5", var5);
+
+    liveVar1Out = shooterTab.add("Live Var1", var1).getEntry();
+    liveVar2Out = shooterTab.add("Live Var2", var2).getEntry();
+    liveVar3Out = shooterTab.add("Live Var3", var3).getEntry();
+    liveVar4Out = shooterTab.add("Live Var4", var4).getEntry();
+    liveVar5Out = shooterTab.add("Live Var5", var5).getEntry();
+            
+            
+            }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Turret stuff below
 
+//  double setpointRPM = (-0.0196576 + Math.sqrt((0.00038641 + 0.00003222676 * (34.80782+(Units.metersToInches(distance))))))/0.00001611338; //quadratic formula to find setpointRPM based on distance. distance in meters
+
+
 public double calculateSetpointRPM(double distance ){ //finds the setpoint RPM for the flywheel based on distance from target
+
   //double setpointRPM = 200 * distance; //constant will need to be tuned. distance in meters
-  double setpointRPM = (-0.0196576 + Math.sqrt((0.00038641 + 0.00003222676 * (34.80782+(Units.metersToInches(distance))))))/0.00001611338; //quadratic formula to find setpointRPM based on distance. distance in meters
+
+  //second equation values
+  // double var1 = -0.0204662; //more negative = higher RPM in total
+  // double var2 = 0.001321269; //base sqrt value, affect close range shots more than long range ones
+  // double var3 = 0.0000339712; //distance sensitivity, changes long range shots more than close range ones / changes curve
+  // double var4 = 26.56379; //distance offset, shifts where the robot thinks its on the curve
+  // double var5 = 0.0000169856; //scales entire speed 
+
+       Double liveVar1 = var1Entry.getDouble(0);
+       Double liveVar2 = var2Entry.getDouble(0);
+       Double liveVar3 = var3Entry.getDouble(0);
+       Double liveVar4 = var4Entry.getDouble(0);
+       Double liveVar5 = var5Entry.getDouble(0);
+
+    liveVar1Out.setDouble(var1Entry.getDouble(var1));
+    liveVar2Out.setDouble(var2Entry.getDouble(var2));
+    liveVar3Out.setDouble(var3Entry.getDouble(var3));
+    liveVar4Out.setDouble(var4Entry.getDouble(var4));
+    liveVar5Out.setDouble(var5Entry.getDouble(var5));
+
+     //System.out.println("Live Var1: " + liveVar1 + " Live Var2: " + liveVar2 + " Live Var3: " + liveVar3 + " Live Var4: " + liveVar4 + " Live Var5: " + liveVar5);
+
+  double setpointRPM = ( var1 + Math.sqrt((var2 + var3 * (var4 +(Units.metersToInches(distance))))))/var5; //quadratic formula to find setpointRPM based on distance. distance in meters
+
+  //double setpointRPM = (-0.0204662 + Math.sqrt((0.001321269 + 0.0000339712 * (0.0000339712*(Units.metersToInches(distance))))))/0.0000169856; //quadratic formula to find setpointRPM based on distance. distance in meters
   SmartDashboard.putNumber("Setpoint RPM", setpointRPM);
   //setFlywheelRPM(setpointRPM);
   return setpointRPM;

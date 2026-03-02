@@ -12,24 +12,26 @@ import frc.robot.Subsystems.ReadyforTuning.ShooterSub;
 import frc.robot.Subsystems.ReadyforTuning.TurretSub;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SmartShoot extends Command {
+public class SmartShootCopy extends Command {
   /** Creates a new SmartShoot. */
 
 ShooterSub shooterSub;
 TurretSub turretSub;
 IntakeSub intakeSub;
 GenericHID buttonBox;
+CommandXboxController driverController;
 double targetRPM;
 double targetx;
 double targety;
 // private final double turretConstant = 500; //turret constant to convert distance to RPM
 // private final double turretOffset = 300;
 
-  public SmartShoot(ShooterSub l_shooterSub, TurretSub l_turretSub, IntakeSub l_intakeSub, GenericHID l_buttonBox, double l_targetx, double l_targety) {
+  public SmartShootCopy(ShooterSub l_shooterSub, TurretSub l_turretSub, IntakeSub l_intakeSub, GenericHID l_buttonBox, CommandXboxController l_driverController, double l_targetx, double l_targety) {
     shooterSub = l_shooterSub;
     turretSub = l_turretSub;
     intakeSub = l_intakeSub;
     buttonBox = l_buttonBox;
+    driverController = l_driverController;
     targetx = l_targetx;
     targety = l_targety;
     addRequirements(shooterSub, turretSub, intakeSub);
@@ -78,7 +80,7 @@ double targety;
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !buttonBox.getRawButton(5); //buttonBox.getRawButtonReleased(5)
-
+    //return !buttonBox.getRawButton(5); //buttonBox.getRawButtonReleased(5)
+    return !driverController.b().getAsBoolean();
   }
 }

@@ -15,7 +15,7 @@ public class ClimberSub extends SubsystemBase {
   /** Creates a new Climber. */
     private final SparkMax ClimberMotor = new SparkMax(13, MotorType.kBrushless);
      RelativeEncoder ClimberEncoder = ClimberMotor.getEncoder();
-    double maxClimb = 210;
+    double maxClimb = 250;
     double minClimb = 5;
 
   public ClimberSub() {}
@@ -51,6 +51,10 @@ public class ClimberSub extends SubsystemBase {
     double climberangle = ClimberEncoder.getPosition();
     SmartDashboard.putNumber("Climber Position", climberangle);
     return climberangle;
+  }
+
+  public void resetClimberPosition(){
+    ClimberEncoder.setPosition(0);
   }
 
   @Override

@@ -5,15 +5,53 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Isaiahs Path 1"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoIntake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Grab Balls Path1"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "GoToClimber"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoClimbUp"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoClimbDown"
           }
         }
       ]

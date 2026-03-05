@@ -20,7 +20,7 @@ public class IntakeSub extends SubsystemBase {
   private final SparkMax IntakeWheelMotor = new SparkMax(11, MotorType.kBrushless); //roller NOT MECANUM
   private final SparkMax AgitatorMotor = new SparkMax(10, MotorType.kBrushed);
   private final SparkMax IntakeArmMotor = new SparkMax(9, MotorType.kBrushed);
-  //RelativeEncoder IntakeArmEncoder = IntakeArmMotor.getEncoder();
+  RelativeEncoder intakeWheelEncoder = IntakeWheelMotor.getEncoder();
   //PIDController ArmPID = new PIDController(0.001, 0, 0);
 
   
@@ -30,11 +30,17 @@ public class IntakeSub extends SubsystemBase {
     IntakeWheelMotor.set(rollerSpeed);
     AgitatorMotor.set(agitatorSpeed);
     //ArmSetpointBottom();
+    System.out.println("INTAKING");
   }
 
   public void IntakeWheelSet(double speed){
     IntakeWheelMotor.set(speed);
   }
+  public double getIntakeWheelPosition(){
+    return intakeWheelEncoder.getPosition();
+  }
+
+
   public void AgitatorSet(double speed){
     AgitatorMotor.set(speed);
   }

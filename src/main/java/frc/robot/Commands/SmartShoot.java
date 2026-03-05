@@ -36,7 +36,9 @@ double targetRPM;
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+          intakeSub.IntakeArmSet(-1); //up is negative probably
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -53,7 +55,6 @@ double targetRPM;
     if((turretSub.getFlywheelRPM() > (targetRPM - 20)) && (turretSub.getFlywheelRPM() < (targetRPM + 20))){ //if flywheel is at target RPM, start feeding balls
       shooterSub.ShooterGroup(1, 1);
       intakeSub.AgitatorSet(-.5);
-      intakeSub.IntakeArmSet(-1); //up is negative probably
     }
   }
 
@@ -61,11 +62,12 @@ double targetRPM;
   @Override
   public void end(boolean interrupted) {
 
-      if(turretSub.getFlywheelRPM() > (targetRPM - 10)){
-      shooterSub.ShooterGroup(0, 0);
+    //if((turretSub.getFlywheelRPM() > (targetRPM - 100)) && (turretSub.getFlywheelRPM() < (targetRPM + 100))){      shooterSub.ShooterGroup(0, 0);
       intakeSub.AgitatorSet(0);
       intakeSub.IntakeArmSet(0);
-      }
+      shooterSub.mecanumSet(0);
+      shooterSub.greenWheelSet(0);
+    //}
 
       
       turretSub.setFlywheelSpeed(0);

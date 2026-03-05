@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -16,8 +17,10 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Commands.SmartIntake;
 import frc.robot.Commands.SmartShoot;
-import frc.robot.Commands.SmartShootCopy;
+import frc.robot.Commands.Auto.AutoShoot;
+import frc.robot.Subsystems.CameraSub;
 import frc.robot.Subsystems.ReadyforTuning.ClimberSub;
 import frc.robot.Subsystems.ReadyforTuning.IntakeSub;
 import frc.robot.Subsystems.ReadyforTuning.ShooterSub;
@@ -33,12 +36,13 @@ public class RobotContainer {
   private final ShooterSub shootersub = new ShooterSub();
   private final SwerveSub drivebase = new SwerveSub();
   private final TurretSub turretSub = new TurretSub();
+  private final CameraSub cameraSub = new CameraSub();
   // Turret trackTarget = new Turret(turretSub, 0);
 
   private final CommandXboxController driverController = new CommandXboxController(1);
   private final GenericHID buttonBox = new GenericHID(0);
-
-  private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
+  private SendableChooser<Command> autoChooser;
+  //private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
 
   // // TARGET POSITION ON FIELD
   // private double bluealliancetargetX = 5.4; // X position of target VERTICLE?
@@ -48,12 +52,13 @@ public class RobotContainer {
   // private double bluealliancetargetY = 4.02; //Y position of target
 
   public RobotContainer() {
+    NamedCommands.registerCommand("AutoShoot", new AutoShoot(shootersub, turretSub, intakeSub, drivebase));
+    autoChooser = AutoBuilder.buildAutoChooser();
     configureBindings();
     // Put the chooser on Shuffleboard
     SmartDashboard.putData("Auto Mode", autoChooser);
     // Set a default auto so it runs even if you don't pick one
-    autoChooser.setDefaultOption("MyAuto", new PathPlannerAuto("MyAuto"));
-
+    autoChooser.setDefaultOption("MyAuto", new PathPlannerAuto("Isaiahs really big test"));
   }
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(), // gives inputs to swerve
@@ -87,7 +92,7 @@ public class RobotContainer {
     // XBOX CONTROLLER
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
     driverController.a().onTrue(new InstantCommand(drivebase::zeroGyro, drivebase));
-    driverController.b().onTrue(new SmartShootCopy(shootersub, turretSub, intakeSub, buttonBox, driverController));
+    //driverController.b().onTrue(new SmartShootCopy(shootersub, turretSub, intakeSub, buttonBox, driverController));
 
     // driverController.b().onTrue(new RunCommand(() ->
     // System.out.println("ontrue")));
@@ -105,16 +110,12 @@ public class RobotContainer {
     new JoystickButton(buttonBox, 1).onTrue(new RunCommand(() -> intakeSub.IntakeArmSet(-1), intakeSub)); // UP
       new JoystickButton(buttonBox, 1).onFalse(new RunCommand(() -> intakeSub.IntakeArmSet(0), intakeSub));
 
-    new JoystickButton(buttonBox, 2).onTrue(new RunCommand(() -> intakeSub.IntakeArmSet(.5), intakeSub)); // DOWN
+    new JoystickButton(buttonBox, 2).onTrue(new RunCommand(() -> intakeSub.IntakeArmSet(1), intakeSub)); // DOWN
       new JoystickButton(buttonBox, 2).onFalse(new RunCommand(() -> intakeSub.IntakeArmSet(0), intakeSub));
 
-    new JoystickButton(buttonBox, 3).onTrue(new RunCommand(() -> intakeSub.IntakeGroup(1, .5), intakeSub));
-    new JoystickButton(buttonBox, 3).onTrue(new RunCommand(() -> intakeSub.IntakeArmSet(.5), intakeSub)); // DOWN
-      new JoystickButton(buttonBox, 3).onFalse(new RunCommand(() -> intakeSub.IntakeGroup(0, 0), intakeSub));
-      new JoystickButton(buttonBox, 3).onFalse(new RunCommand(() -> intakeSub.IntakeArmSet(0), intakeSub));
-
-    new JoystickButton(buttonBox, 4).onTrue(new RunCommand(() -> shootersub.ShooterGroup(.7, .5), shootersub));
-      new JoystickButton(buttonBox, 4).onFalse(new RunCommand(() -> shootersub.ShooterGroup(0, 0), shootersub));
+    //new JoystickButton(buttonBox, 3).onTrue(new RunCommand(() -> intakeSub.IntakeGroup(1, -.5), intakeSub));
+    
+    new JoystickButton(buttonBox, 3).onTrue(new SmartIntake(intakeSub, shootersub, buttonBox)); // DOWN
 
     new JoystickButton(buttonBox, 5).onTrue(new SmartShoot(shootersub, turretSub, intakeSub, buttonBox));
       // new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
@@ -129,6 +130,8 @@ public class RobotContainer {
     new JoystickButton(buttonBox, 7).whileTrue(new RunCommand(() -> drivebase.updateVisionOdometryReal(), turretSub));
 
     // //fear this single line of code
+    new JoystickButton(buttonBox, 8).onTrue(new RunCommand(() -> turretSub.toggleButtonPressed(), turretSub));
+    new JoystickButton(buttonBox, 8).toggleOnFalse(new RunCommand(() -> turretSub.toggleButtonUnPressed(), turretSub));
     new JoystickButton(buttonBox, 8).toggleOnTrue(new RunCommand(() -> turretSub.setTurretspeedWithlimits(
         turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
                                                                         turretSub.getFieldPositionX(),

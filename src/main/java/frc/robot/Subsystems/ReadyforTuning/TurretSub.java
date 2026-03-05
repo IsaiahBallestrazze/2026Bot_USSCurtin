@@ -29,15 +29,15 @@ public class TurretSub extends SubsystemBase {
  //0 degrees facing forward
 
   // TARGET POSITION ON FIELD
-  private double bluealliancetargetX = 5.4; // X position of target VERTICLE?
-  private double bluealliancetargetY = 4; // Y position of target HORIZONTAL?
+  private double bluealliancetargetX = 4.99; // X position of target VERTICLE?
+  private double bluealliancetargetY = 4.13; // Y position of target HORIZONTAL?
   private double targetXReal;
   private double targetYReal;
 
   double var1 = -0.0204662; //more negative = higher RPM in total
-  double var2 = 0.001321269; //base sqrt value, affect close range shots more than long range ones
-  double var3 = 0.0000339712; //distance sensitivity, changes long range shots more than close range ones / changes curve
-  double var4 = 26.56379; //distance offset, shifts where the robot thinks its on the curve
+  double var2 = 0.0020731; //base sqrt value, affect close range shots more than long range ones
+  double var3 = 0.000026; //distance sensitivity, changes long range shots more than close range ones / changes curve
+  double var4 = 28.14; //distance offset, shifts where the robot thinks its on the curve
   double var5 = 0.0000169856; //scales entire speed 
 
 ShuffleboardTab shooterTab = Shuffleboard.getTab("Shooter Tuning"); //creates shooter tab in shuffleboard
@@ -77,11 +77,16 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
     turretMotor.setInverted(true);
     shooterMotor.setInverted(true);
           
-
+ //second equation values
+  // double var1 = -0.0204662; //more negative = higher RPM in total
+  // double var2 = 0.001321269; //base sqrt value, affect close range shots more than long range ones
+  // double var3 = 0.0000339712; //distance sensitivity, changes long range shots more than close range ones / changes curve
+  // double var4 = 26.56379; //distance offset, shifts where the robot thinks its on the curve
+  // double var5 = 0.0000169856; //scales entire speed 
     
  var1Entry = shooterTab.add("var1 (Raises total RPM)", var1)
              .withWidget("Number Slider")
-             .withProperties(Map.of("min", -0.1, "max", 0.1, "step", 0.001))
+             .withProperties(Map.of("min", -0.3, "max", 0, "step", 0.001))
              .getEntry();  
   //shooterTab.add("real Var1", var1);
 
@@ -115,13 +120,13 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
     liveVar4Out = shooterTab.add("Live Var4", var4).getEntry();
     liveVar5Out = shooterTab.add("Live Var5", var5).getEntry();
     
-  targetXEntry = shooterTab.add("Target X", bluealliancetargetX)
+  targetXEntry = shooterTab.add("Target X Verticle", bluealliancetargetX)
              .withWidget("Number Slider")
              .withProperties(Map.of("min", 0, "max", 10, "step", 0.1))
              .getEntry();  
   //shooterTab.add("real Var1", var1);
 
- targetYEntry = shooterTab.add("Target Y", bluealliancetargetY)
+ targetYEntry = shooterTab.add("Target Y Horizontal", bluealliancetargetY)
              .withWidget("Number Slider")
              .withProperties(Map.of("min", 0.0, "max", 10, "step", 0.1))
              .getEntry();  
@@ -292,6 +297,11 @@ public double getFlywheelPosition(){ //NEED TO INVERT?
   return -shooterEncoder.getPosition();
 }
 
+public double resetFlywheelposition(){
+  shooterEncoder.setPosition(0);
+  return shooterEncoder.getPosition();
+}
+
 
 public double getTurretAngle(){ //assumes 0 is on right side
   double turretAngle = Math.toRadians(turretEncoder.getPosition() / 19.5); //gives 0 to pi
@@ -305,7 +315,7 @@ public double getTurretAngle(){ //assumes 0 is on right side
 }
 
   public void setTurretspeedWithlimits(double speed) {
-
+    toggleButtonPressed();
     if (speed > 0 && getTurretAngle() >= Math.toRadians(70)) {
       speed = 0; // Stop the motor if trying to move beyond +90 degrees
       SmartDashboard.putBoolean("Positive safety?", true);
@@ -332,8 +342,6 @@ public void setTurretAngle(double angle){ //assumes 0 is on right side /////////
 
 
 }
-
-
 
 
 public double getFieldPositionX() {
@@ -411,6 +419,13 @@ public PIDController getTurretPID(){
   return TurretPID;
 }
 
+  public void toggleButtonUnPressed(){
+      SmartDashboard.putBoolean("Toggle", false);
+  }
+
+  public void toggleButtonPressed(){
+      SmartDashboard.putBoolean("Toggle", true);
+  }
 
 //TURRET STUFF ABOVE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

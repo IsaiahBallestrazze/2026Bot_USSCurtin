@@ -19,6 +19,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Commands.SmartIntake;
 import frc.robot.Commands.SmartShoot;
+import frc.robot.Commands.Auto.AutoClimbDown;
+import frc.robot.Commands.Auto.AutoClimbUp;
+import frc.robot.Commands.Auto.AutoIntake;
 import frc.robot.Commands.Auto.AutoShoot;
 import frc.robot.Subsystems.CameraSub;
 import frc.robot.Subsystems.ReadyforTuning.ClimberSub;
@@ -53,6 +56,10 @@ public class RobotContainer {
 
   public RobotContainer() {
     NamedCommands.registerCommand("AutoShoot", new AutoShoot(shootersub, turretSub, intakeSub, drivebase));
+    // NamedCommands.registerCommand("AutoIntake", new AutoIntake(shootersub, turretSub, intakeSub, drivebase));
+    // NamedCommands.registerCommand("AutoClimbDown", new AutoClimbDown(climberSub, drivebase));
+    // NamedCommands.registerCommand("AutoClimbDown", new AutoClimbUp(climberSub, drivebase));
+
     autoChooser = AutoBuilder.buildAutoChooser();
     configureBindings();
     // Put the chooser on Shuffleboard
@@ -117,6 +124,8 @@ public class RobotContainer {
     
     new JoystickButton(buttonBox, 3).onTrue(new SmartIntake(intakeSub, shootersub, buttonBox)); // DOWN
 
+        new JoystickButton(buttonBox, 4).onTrue(new SmartIntake(intakeSub, shootersub, buttonBox)); // DOWN //static shooter
+
     new JoystickButton(buttonBox, 5).onTrue(new SmartShoot(shootersub, turretSub, intakeSub, buttonBox));
       // new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
       // new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> intakeSub.AgitatorSet(0), intakeSub));
@@ -124,14 +133,18 @@ public class RobotContainer {
 
     new JoystickButton(buttonBox, 6).onTrue(new RunCommand(() -> shootersub.ShooterGroup(-.7, -.5), shootersub));
     new JoystickButton(buttonBox, 6).onTrue(new RunCommand(() -> turretSub.setFlywheelSpeed(-.5), turretSub));
+    new JoystickButton(buttonBox, 6).onTrue(new RunCommand(() -> intakeSub.IntakeWheelSet(-.5), turretSub));
+
       new JoystickButton(buttonBox, 6).onFalse(new RunCommand(() -> shootersub.ShooterGroup(0, 0), shootersub));
       new JoystickButton(buttonBox, 6).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
+      new JoystickButton(buttonBox, 6).onFalse(new RunCommand(() -> intakeSub.IntakeWheelSet(0), turretSub));
 
     new JoystickButton(buttonBox, 7).whileTrue(new RunCommand(() -> drivebase.updateVisionOdometryReal(), turretSub));
 
     // //fear this single line of code
-    new JoystickButton(buttonBox, 8).onTrue(new RunCommand(() -> turretSub.toggleButtonPressed(), turretSub));
-    new JoystickButton(buttonBox, 8).toggleOnFalse(new RunCommand(() -> turretSub.toggleButtonUnPressed(), turretSub));
+    new JoystickButton(buttonBox, 8).toggleOnTrue(new InstantCommand(() -> turretSub.toggleButtonPressed(), turretSub));
+    new JoystickButton(buttonBox, 8).toggleOnFalse(new InstantCommand(() -> turretSub.toggleButtonUnPressed(), turretSub));
+    
     new JoystickButton(buttonBox, 8).toggleOnTrue(new RunCommand(() -> turretSub.setTurretspeedWithlimits(
         turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
                                                                         turretSub.getFieldPositionX(),

@@ -29,8 +29,11 @@ public class TurretSub extends SubsystemBase {
  //0 degrees facing forward
 
   // TARGET POSITION ON FIELD
-  private double bluealliancetargetX = 4.99; // X position of target VERTICLE?
-  private double bluealliancetargetY = 4.13; // Y position of target HORIZONTAL?
+  private double bluealliancetargetX = 4.6228; // X position of target VERTICLE?
+  private double bluealliancetargetY = 4.0132; // Y position of target HORIZONTAL?
+
+  private double redAllianceTargetX = 11.9126; // X position of target VERTICLE? //17 was original
+
   private double targetXReal;
   private double targetYReal;
 
@@ -120,15 +123,20 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
     liveVar4Out = shooterTab.add("Live Var4", var4).getEntry();
     liveVar5Out = shooterTab.add("Live Var5", var5).getEntry();
     
-  targetXEntry = shooterTab.add("Target X Verticle", bluealliancetargetX)
+  targetXEntry = shooterTab.add("BLU TargetX Verticle", bluealliancetargetX)
              .withWidget("Number Slider")
-             .withProperties(Map.of("min", 0, "max", 10, "step", 0.1))
+             .withProperties(Map.of("min", 0, "max", 20, "step", 0.1))
              .getEntry();  
   //shooterTab.add("real Var1", var1);
 
- targetYEntry = shooterTab.add("Target Y Horizontal", bluealliancetargetY)
+ targetYEntry = shooterTab.add("BLU Target Y Horizontal", bluealliancetargetY)
              .withWidget("Number Slider")
              .withProperties(Map.of("min", 0.0, "max", 10, "step", 0.1))
+             .getEntry();  
+
+ targetXEntry = shooterTab.add("RED Target X Verticle", redAllianceTargetX)
+             .withWidget("Number Slider")
+             .withProperties(Map.of("min", 0, "max", 20, "step", 0.1))
              .getEntry();  
             }
 
@@ -141,6 +149,14 @@ NetworkTable table = NetworkTableInstance.getDefault().getTable("Field"); //assu
 public double calculateSetpointRPM(double distance ){ //finds the setpoint RPM for the flywheel based on distance from target
 
   //double setpointRPM = 200 * distance; //constant will need to be tuned. distance in meters
+
+//FIRST EQUATION VALUES
+  double var1 = -0.0196576; //more negative = higher RPM in total
+  double var2 = 0.00038641; //base sqrt value, affect close range shots more than long range ones
+  double var3 = 0.00003222676; //distance sensitivity, changes long range shots more than close range ones / changes curve
+  double var4 = 34.80782; //distance offset, shifts where the robot thinks its on the curve
+  double var5 = 0.00001611338; //scales entire speed 
+
 
   //second equation values
   // double var1 = -0.0204662; //more negative = higher RPM in total
@@ -168,8 +184,10 @@ public double calculateSetpointRPM(double distance ){ //finds the setpoint RPM f
       System.out.println("Target Y: " + targetYEntry.getDouble(0));
      //System.out.println("Live Var1: " + liveVar1 + " Live Var2: " + liveVar2 + " Live Var3: " + liveVar3 + " Live Var4: " + liveVar4 + " Live Var5: " + liveVar5);
 
-  //double setpointRPM = ( var1 + Math.sqrt((var2 + var3 * (var4 +(Units.metersToInches(distance))))))/var5; //quadratic formula to find setpointRPM based on distance. distance in meters
-  double setpointRPM = ( var1Entry.getDouble(0) + Math.sqrt((var2Entry.getDouble(0) + var3Entry.getDouble(0) * (var4Entry.getDouble(0) +(Units.metersToInches(distance))))))/var5Entry.getDouble(0); //quadratic formula to find setpointRPM based on distance. distance in meters
+  double setpointRPM = ( var1 + Math.sqrt((var2 + var3 * (var4 +(Units.metersToInches(distance))))))/var5; //quadratic formula to find setpointRPM based on distance. distance in meters
+  
+  
+  //double setpointRPM = ( var1Entry.getDouble(0) + Math.sqrt((var2Entry.getDouble(0) + var3Entry.getDouble(0) * (var4Entry.getDouble(0) +(Units.metersToInches(distance))))))/var5Entry.getDouble(0); //quadratic formula to find setpointRPM based on distance. distance in meters
 
   //double setpointRPM = (-0.0204662 + Math.sqrt((0.001321269 + 0.0000339712 * (0.0000339712*(Units.metersToInches(distance))))))/0.0000169856; //quadratic formula to find setpointRPM based on distance. distance in meters
   SmartDashboard.putNumber("Setpoint RPM", setpointRPM);
@@ -254,14 +272,44 @@ public double CalculateRotationSpeed(double targetAngle, double turretCurrentAng
 }
 
 public double CalculateTargetAngle(double botX, double botY){ //finds the angle between the robot and the target point
-  Double targetAngle = Math.atan2((targetYEntry.getDouble(0) - botY),(targetXEntry.getDouble(0) - botX)); // Use atan2 to handle all quadrants properly
+
+    double targetAngle;
+
+    if(getFieldPositionX() > 8.255){
+
+      SmartDashboard.putBoolean("BlueSide2", false);
+      SmartDashboard.putBoolean("RedSide2", true);
+
+        targetAngle = Math.atan2((targetYEntry.getDouble(0) - botY),(redAllianceTargetX - botX)); // Use atan2 to handle all quadrants properly    } else{
+    } else{
+
+      SmartDashboard.putBoolean("BlueSide2", true);
+      SmartDashboard.putBoolean("RedSide2", false);
+
+        targetAngle = Math.atan2((targetYEntry.getDouble(0) - botY),(bluealliancetargetX - botX)); // Use atan2 to handle all quadrants properly
+    }
   //point slope form to find line
   //System.out.println("Target Angle (radians): " + targetAngle);
   return targetAngle;
+
 }
 
   public double calculateDistance(double botX, double botY){ //finds the distance between the robot and the target point
-    double distance = Math.sqrt(Math.pow((targetXEntry.getDouble(0) - botX), 2) + Math.pow((targetYEntry.getDouble(0) - botY), 2));
+    double distance;
+    if(getFieldPositionX() > 8.255){
+
+      SmartDashboard.putBoolean("BlueSide", false);
+      SmartDashboard.putBoolean("RedSide", true);
+
+     distance = Math.sqrt(Math.pow((redAllianceTargetX - botX), 2) + Math.pow((targetYEntry.getDouble(0) - botY), 2));
+    } else{
+
+      SmartDashboard.putBoolean("BlueSide", true);
+      SmartDashboard.putBoolean("RedSide", false);
+
+     distance = Math.sqrt(Math.pow((bluealliancetargetX - botX), 2) + Math.pow((targetYEntry.getDouble(0) - botY), 2));
+
+    }
     SmartDashboard.putNumber("Distance to Target", distance);
     return distance;
   }
@@ -316,10 +364,10 @@ public double getTurretAngle(){ //assumes 0 is on right side
 
   public void setTurretspeedWithlimits(double speed) {
     toggleButtonPressed();
-    if (speed > 0 && getTurretAngle() >= Math.toRadians(70)) {
+    if (speed > 0 && getTurretAngle() >= Math.toRadians(60)) {
       speed = 0; // Stop the motor if trying to move beyond +90 degrees
       SmartDashboard.putBoolean("Positive safety?", true);
-    } else if (speed < 0 && getTurretAngle() <= Math.toRadians(-70)) {
+    } else if (speed < 0 && getTurretAngle() <= Math.toRadians(-60)) {
       speed = 0; // Stop the motor if trying to move beyond -90 degrees
       SmartDashboard.putBoolean("Negative safety?", true);
     } else {

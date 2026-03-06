@@ -14,11 +14,11 @@ public class CameraSub extends SubsystemBase {
   }
 
 public void StartCamera(){
-UsbCamera RobotEye = CameraServer.startAutomaticCapture(0);
-//UsbCamera RobotEye2 = CameraServer.startAutomaticCapture(1);
+// UsbCamera RobotEye = CameraServer.startAutomaticCapture(0);
+// // //UsbCamera RobotEye2 = CameraServer.startAutomaticCapture(1);
 
-RobotEye.setResolution(640, 480);
-RobotEye.setFPS(60);
+// RobotEye.setResolution(640, 480);
+// RobotEye.setFPS(60);
 // RobotEye2.setResolution(1280, 720);
 // RobotEye2.setFPS(30);
 }

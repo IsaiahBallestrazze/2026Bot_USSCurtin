@@ -62,13 +62,13 @@ SwerveSub drivebase;
 
 
     //TURRET
-    turretSub.setTurretspeedWithlimits(
-        turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
-                                                                        turretSub.getFieldPositionX(),
-                                                                        turretSub.getFieldPositionY()),
-                                          turretSub.getTurretAngle(),
-                                          turretSub.getTurretPID(),
-                                          Math.toRadians(drivebase.getAnglesInverted())));
+    // turretSub.setTurretspeedWithlimits(
+    //     turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
+    //                                                                     turretSub.getFieldPositionX(),
+    //                                                                     turretSub.getFieldPositionY()),
+    //                                       turretSub.getTurretAngle(),
+    //                                       turretSub.getTurretPID(),
+    //                                       Math.toRadians(drivebase.getAnglesInverted())));
 
   }
 
@@ -90,6 +90,6 @@ SwerveSub drivebase;
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return turretSub.getFlywheelPosition() > 150; //if doesent work may need to invert return value
+    return turretSub.getFlywheelPosition() > 300; //if doesent work may need to invert return value
   }
 }

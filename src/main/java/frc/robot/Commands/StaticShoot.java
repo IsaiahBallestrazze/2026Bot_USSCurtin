@@ -4,7 +4,13 @@
 
 package frc.robot.Commands;
 
+import java.util.Map;
+
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Subsystems.ReadyforTuning.IntakeSub;
@@ -21,6 +27,11 @@ IntakeSub intakeSub;
 GenericHID buttonBox;
 double targetRPM;
 
+GenericEntry targetXEntry;
+GenericEntry rpmEntry;
+
+
+
 // private final double turretConstant = 500; //turret constant to convert distance to RPM
 // private final double turretOffset = 300;
 
@@ -30,6 +41,12 @@ double targetRPM;
     intakeSub = l_intakeSub;
     buttonBox = l_buttonBox;
 
+       rpmEntry = Shuffleboard.getTab("Shooter Tuning")
+        .add("Setpoint RPM Static", 3000)
+        .withWidget(BuiltInWidgets.kNumberSlider)
+        .withProperties(Map.of("min", 0, "max", 5000))
+        .getEntry();
+
     addRequirements(shooterSub, turretSub, intakeSub);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -38,13 +55,16 @@ double targetRPM;
   @Override
   public void initialize() {
           intakeSub.IntakeArmSet(-1); //up is negative probably
+
+
   }
+        
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     // targetRPM = ((turretSub.calculateDistance(turretSub.getFieldPositionX(), turretSub.getFieldPositionY(), targetx, targety)) * turretConstant) + turretOffset; //turret constant LINEAR BOO
-    targetRPM = 2000;
+double targetRPM = rpmEntry.getDouble(3000);
     turretSub.setFlywheelRPM(targetRPM);
     System.out.println("STATIC SHOOTING");
     // System.out.println(turretSub.getFlywheelRPM());

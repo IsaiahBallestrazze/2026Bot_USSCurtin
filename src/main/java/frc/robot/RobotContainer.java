@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Commands.SmartIntake;
 import frc.robot.Commands.SmartShoot;
+import frc.robot.Commands.StaticShoot;
 import frc.robot.Commands.Auto.AutoClimbDown;
 import frc.robot.Commands.Auto.AutoClimbUp;
 import frc.robot.Commands.Auto.AutoIntake;
@@ -124,7 +125,7 @@ public class RobotContainer {
     
     new JoystickButton(buttonBox, 3).onTrue(new SmartIntake(intakeSub, shootersub, buttonBox)); // DOWN
 
-        new JoystickButton(buttonBox, 4).onTrue(new SmartIntake(intakeSub, shootersub, buttonBox)); // DOWN //static shooter
+        new JoystickButton(buttonBox, 4).onTrue(new StaticShoot(shootersub, turretSub, intakeSub, buttonBox)); // DOWN //static shooter
 
     new JoystickButton(buttonBox, 5).onTrue(new SmartShoot(shootersub, turretSub, intakeSub, buttonBox));
       // new JoystickButton(buttonBox, 5).onFalse(new RunCommand(() -> turretSub.setFlywheelSpeed(0), turretSub));
@@ -144,7 +145,7 @@ public class RobotContainer {
     // //fear this single line of code
     new JoystickButton(buttonBox, 8).toggleOnTrue(new InstantCommand(() -> turretSub.toggleButtonPressed(), turretSub));
     new JoystickButton(buttonBox, 8).toggleOnFalse(new InstantCommand(() -> turretSub.toggleButtonUnPressed(), turretSub));
-    
+
     new JoystickButton(buttonBox, 8).toggleOnTrue(new RunCommand(() -> turretSub.setTurretspeedWithlimits(
         turretSub.CalculateRotationSpeed(turretSub.CalculateTargetAngle(
                                                                         turretSub.getFieldPositionX(),

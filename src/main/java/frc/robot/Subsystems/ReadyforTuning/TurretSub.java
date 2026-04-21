@@ -151,19 +151,19 @@ public double calculateSetpointRPM(double distance ){ //finds the setpoint RPM f
   //double setpointRPM = 200 * distance; //constant will need to be tuned. distance in meters
 
 //FIRST EQUATION VALUES
-  double var1 = -0.0196576; //more negative = higher RPM in total
-  double var2 = 0.00038641; //base sqrt value, affect close range shots more than long range ones
-  double var3 = 0.00003222676; //distance sensitivity, changes long range shots more than close range ones / changes curve
-  double var4 = 34.80782; //distance offset, shifts where the robot thinks its on the curve
-  double var5 = 0.00001611338; //scales entire speed 
+  // double var1 = -0.0196576; //more negative = higher RPM in total
+  // double var2 = 0.00038641; //base sqrt value, affect close range shots more than long range ones
+  // double var3 = 0.00003222676; //distance sensitivity, changes long range shots more than close range ones / changes curve
+  // double var4 = 34.80782; //distance offset, shifts where the robot thinks its on the curve
+  // double var5 = 0.00001611338; //scales entire speed 
 
 
   //second equation values
-  // double var1 = -0.0204662; //more negative = higher RPM in total
-  // double var2 = 0.001321269; //base sqrt value, affect close range shots more than long range ones
-  // double var3 = 0.0000339712; //distance sensitivity, changes long range shots more than close range ones / changes curve
-  // double var4 = 26.56379; //distance offset, shifts where the robot thinks its on the curve
-  // double var5 = 0.0000169856; //scales entire speed 
+  double var1 = -0.0204662; //more negative = higher RPM in total
+  double var2 = 0.001321269; //base sqrt value, affect close range shots more than long range ones
+  double var3 = 0.0000339712; //distance sensitivity, changes long range shots more than close range ones / changes curve
+  double var4 = 26.56379; //distance offset, shifts where the robot thinks its on the curve
+  double var5 = 0.0000169856; //scales entire speed 
 
        Double liveVar1 = var1Entry.getDouble(0);
        Double liveVar2 = var2Entry.getDouble(0);

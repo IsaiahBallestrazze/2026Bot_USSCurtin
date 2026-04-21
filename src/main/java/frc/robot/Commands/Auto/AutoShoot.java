@@ -54,10 +54,14 @@ SwerveSub drivebase;
     System.out.println(turretSub.getFlywheelPosition());
     // System.out.println(turretSub.getFlywheelRPM());
 
-    if((turretSub.getFlywheelRPM() > (targetRPM - 20)) && (turretSub.getFlywheelRPM() < (targetRPM + 20))){ //if flywheel is at target RPM, start feeding balls
+    if((turretSub.getFlywheelRPM() > (targetRPM - 100)) && (turretSub.getFlywheelRPM() < (targetRPM + 100))){ //if flywheel is at target RPM, start feeding balls
+      System.out.println(" IN RANGE");
+
       shooterSub.ShooterGroup(1, 1);
       intakeSub.AgitatorSet(-.5);
       intakeSub.IntakeArmSet(-1); //up is negative probably
+    }else{
+      System.out.println("NOT IN RANGE");
     }
 
 
@@ -90,6 +94,6 @@ SwerveSub drivebase;
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return turretSub.getFlywheelPosition() > 300; //if doesent work may need to invert return value
+    return turretSub.getFlywheelPosition() > 500; //if doesent work may need to invert return value
   }
 }

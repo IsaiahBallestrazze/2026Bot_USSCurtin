@@ -21,7 +21,6 @@ import frc.robot.Commands.SmartIntake;
 import frc.robot.Commands.SmartShoot;
 import frc.robot.Commands.StaticShoot;
 import frc.robot.Commands.Auto.AutoClimbDown;
-import frc.robot.Commands.Auto.AutoClimbUp;
 import frc.robot.Commands.Auto.AutoIntake;
 import frc.robot.Commands.Auto.AutoShoot;
 import frc.robot.Subsystems.CameraSub;
@@ -58,7 +57,7 @@ public class RobotContainer {
   public RobotContainer() {
     NamedCommands.registerCommand("AutoShoot", new AutoShoot(shootersub, turretSub, intakeSub, drivebase));
     // NamedCommands.registerCommand("AutoIntake", new AutoIntake(shootersub, turretSub, intakeSub, drivebase));
-    // NamedCommands.registerCommand("AutoClimbDown", new AutoClimbDown(climberSub, drivebase));
+    NamedCommands.registerCommand("AutoClimbDown", new AutoClimbDown(climberSub));
     // NamedCommands.registerCommand("AutoClimbDown", new AutoClimbUp(climberSub, drivebase));
 
     autoChooser = AutoBuilder.buildAutoChooser();
